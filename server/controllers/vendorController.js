@@ -1,0 +1,199 @@
+import Vendor from '../models/Vendor.js'
+import Product from '../models/Product.js'
+import User from '../models/User.js'
+
+// ─── CREATE VENDOR ────────────────────────────────────────
+export const createVendor = async (req, res) => {
+  try {
+    const {
+      storeName, description, phone,
+      email, address, deliveryAreas,
+    } = req.body
+
+    // Check if vendor already exists for this user
+    const existingVendor = await Vendor.findOne({ user: req.user._id })
+    if (existingVendor) {
+      return res.status(400).json({ success: false, message: 'Vendor profile already exists' })
+    }
+
+    const vendor = await Vendor.create({
+      user:         req.user._id,
+      storeName,
+      description,
+      phone,
+      email,
+      address:       address      ? JSON.parse(address)       : {},
+      deliveryAreas: deliveryAreas ? JSON.parse(deliveryAreas) : [],
+    })
+
+    // Update user role to vendor
+    await User.findByIdAndUpdate(req.user._id, { role: 'vendor' })
+
+    res.status(201).json({ success: true, vendor })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}
+
+// ─── GET ALL VENDORS ──────────────────────────────────────
+export const getVendors = async (req, res) => {
+  try {
+    const vendors = await Vendor.find({ isActive: true, isApproved: true })
+      .populate('user', 'name email')
+      .select('-bankDetails')
+
+    res.status(200).json({ success: true, vendors })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}
+
+// ─── GET VENDOR BY ID ─────────────────────────────────────
+export const getVendorById = async (req, res) => {
+  try {
+    const vendor = await Vendor.findById(req.params.id)
+      .populate('user', 'name email')
+      .populate('products')
+      .select('-bankDetails')
+
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: 'Vendor not found' })
+    }
+
+    res.status(200).json({ success: true, vendor })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}
+
+// ─── GET MY VENDOR PROFILE ────────────────────────────────
+export const getMyVendorProfile = async (req, res) => {
+  try {
+    const vendor = await Vendor.findOne({ user: req.user._id })
+      .populate('products')
+
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: 'Vendor profile not found' })
+    }
+
+    res.status(200).json({ success: true, vendor })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}
+
+// ─── UPDATE VENDOR PROFILE ────────────────────────────────
+export const updateVendorProfile = async (req, res) => {
+  try {
+    const vendor = await Vendor.findOne({ user: req.user._id })
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: 'Vendor not found' })
+    }
+
+    const updates = { ...req.body }
+    if (updates.address)       updates.address       = JSON.parse(updates.address)
+    if (updates.deliveryAreas) updates.deliveryAreas = JSON.parse(updates.deliveryAreas)
+
+    const updatedVendor = await Vendor.findByIdAndUpdate(
+      vendor._id,
+      updates,
+      { new: true, runValidators: true }
+    )
+
+    res.status(200).json({ success: true, vendor: updatedVendor })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}
+
+// ─── UPDATE BANK DETAILS ──────────────────────────────────
+export const updateBankDetails = async (req, res) => {
+  try {
+    const { accountName, accountNumber, ifscCode, bankName } = req.body
+
+    const vendor = await Vendor.findOneAndUpdate(
+      { user: req.user._id },
+      { bankDetails: { accountName, accountNumber, ifscCode, bankName } },
+      { new: true }
+    )
+
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: 'Vendor not found' })
+    }
+
+    res.status(200).json({ success: true, message: 'Bank details updated' })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}
+
+// ─── ADD PRODUCT TO VENDOR ────────────────────────────────
+export const addProductToVendor = async (req, res) => {
+  try {
+    const vendor = await Vendor.findOne({ user: req.user._id })
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: 'Vendor not found' })
+    }
+
+    const product = await Product.findById(req.params.productId)
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' })
+    }
+
+    // Add product to vendor
+    if (!vendor.products.includes(req.params.productId)) {
+      vendor.products.push(req.params.productId)
+      await vendor.save()
+    }
+
+    // Link vendor to product
+    product.vendor = vendor._id
+    await product.save()
+
+    res.status(200).json({ success: true, message: 'Product added to vendor' })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}
+
+// ─── TOGGLE PRODUCT AVAILABILITY ─────────────────────────
+export const toggleProductAvailability = async (req, res) => {
+  try {
+    const vendor = await Vendor.findOne({ user: req.user._id })
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: 'Vendor not found' })
+    }
+
+    // Check product belongs to vendor
+    if (!vendor.products.includes(req.params.productId)) {
+      return res.status(403).json({ success: false, message: 'Product does not belong to this vendor' })
+    }
+
+    const product = await Product.findById(req.params.productId)
+    product.inStock = !product.inStock
+    await product.save()
+
+    res.status(200).json({
+      success: true,
+      message: `Product is now ${product.inStock ? 'available' : 'unavailable'}`,
+      inStock: product.inStock,
+    })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}
+
+// ─── GET VENDOR PRODUCTS ──────────────────────────────────
+export const getVendorProducts = async (req, res) => {
+  try {
+    const vendor = await Vendor.findOne({ user: req.user._id })
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: 'Vendor not found' })
+    }
+
+    const products = await Product.find({ vendor: vendor._id })
+    res.status(200).json({ success: true, products })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}

@@ -9,6 +9,7 @@ import orderRoutes from './routes/orderRoutes.js'
 import vendorRoutes from './routes/vendorRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
 import { errorHandler } from './middleware/errorHandler.js'
+import passport from './config/passport.js'
 // Import models to register schemas
 import './models/User.js'
 import './models/Product.js'
@@ -36,6 +37,7 @@ app.use(cors({
 }))
 app.use(express.json())
 app.use(cookieParser())
+app.use(passport.initialize())
 
 app.use('/api/auth', authRoutes)
 app.use('/api/products', productRoutes)

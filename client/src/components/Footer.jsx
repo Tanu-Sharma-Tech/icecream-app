@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Newsletter Section */}
-        <div className="bg-gradient-to-r from-orange-500/10 to-primary/10 rounded-[40px] p-8 md:p-12 mb-20 border border-white/5 relative overflow-hidden group">
+        <div className="bg-gradient-to-r from-orange-500/10 to-primary/10 rounded-[40px] p-6 md:p-10 mb-12 border border-white/5 relative overflow-hidden group">
           <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-primary/20 blur-[100px] rounded-full group-hover:bg-primary/30 transition-colors" />
           
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">

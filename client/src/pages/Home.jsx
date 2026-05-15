@@ -146,7 +146,7 @@ const Home = () => {
       </section>
 
       {/* CTA Banner */}
-      <section className="relative py-20 px-6 mx-4 md:mx-8 mb-24 overflow-hidden rounded-[2.5rem] group">
+      <section className="relative py-20 px-6 mx-4 md:mx-8 mb-16 overflow-hidden rounded-[2.5rem] group shadow-xl">
         {/* Background Layer */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-orange-500 to-primary transition-transform duration-700 group-hover:scale-105" />
         

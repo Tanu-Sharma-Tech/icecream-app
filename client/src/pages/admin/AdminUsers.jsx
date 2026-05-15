@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { FiSearch, FiTrash2, FiUser, FiMail, FiCalendar, FiShield, FiCheckCircle } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 import axiosInstance from '../../api/axiosInstance'
 
 const roleColors = {
-  user:   'bg-blue-100 text-blue-600',
-  admin:  'bg-red-100 text-red-600',
-  vendor: 'bg-green-100 text-green-600',
+  user:   'bg-blue-50 text-blue-600 border-blue-100',
+  admin:  'bg-red-50 text-red-600 border-red-100',
+  vendor: 'bg-green-50 text-green-600 border-green-100',
 }
 
 const AdminUsers = () => {
@@ -58,74 +60,108 @@ const AdminUsers = () => {
   })
 
   return (
-    <div className="space-y-4">
-      <input
-        type="text"
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        placeholder="Search users by name or email..."
-        className="input-field max-w-md"
-      />
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="relative max-w-md w-full">
+          <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search users by name or email..."
+            className="w-full bg-white border border-gray-100 rounded-2xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-soft"
+          />
+        </div>
+        <p className="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-xl shadow-soft border border-gray-50">
+          Total: <span className="text-dark font-bold">{users.length}</span> Users
+        </p>
+      </div>
 
       {loading ? (
-        <div className="space-y-3">
-          {[1,2,3].map(i => <div key={i} className="bg-white rounded-2xl h-16 animate-pulse" />)}
+        <div className="space-y-4">
+          {[1,2,3,4].map(i => <div key={i} className="bg-white rounded-3xl h-20 animate-pulse border border-gray-50 shadow-soft" />)}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                {['User', 'Email', 'Role', 'Verified', 'Joined', 'Actions'].map(h => (
-                  <th key={h} className="text-left px-4 py-3 text-gray-500 font-medium text-xs">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(user => (
-                <tr key={user._id} className="border-b hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center font-bold text-primary text-sm">
-                        {user.name?.[0]?.toUpperCase()}
-                      </div>
-                      <span className="font-medium text-dark">{user.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-gray-500">{user.email}</td>
-                  <td className="px-4 py-3">
-                    <select
-                      value={user.role}
-                      onChange={e => updateRole(user._id, e.target.value)}
-                      className={`text-xs px-2 py-1 rounded-full font-medium border-0 ${roleColors[user.role]}`}
-                    >
-                      <option value="user">user</option>
-                      <option value="admin">admin</option>
-                      <option value="vendor">vendor</option>
-                    </select>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`text-xs px-2 py-1 rounded-full ${user.isVerified ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
-                      {user.isVerified ? 'Verified' : 'Pending'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-500 text-xs">{formatDate(user.createdAt)}</td>
-                  <td className="px-4 py-3">
-                    <button
-                      onClick={() => deleteUser(user._id)}
-                      className="text-red-400 hover:text-red-600 text-xs font-medium transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </td>
+        <div className="bg-white rounded-3xl shadow-soft border border-gray-50 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead>
+                <tr className="bg-gray-50/50 border-b border-gray-100">
+                  <th className="px-6 py-4 text-gray-400 font-bold uppercase tracking-wider text-[10px]">User</th>
+                  <th className="px-6 py-4 text-gray-400 font-bold uppercase tracking-wider text-[10px]">Email</th>
+                  <th className="px-6 py-4 text-gray-400 font-bold uppercase tracking-wider text-[10px]">Role</th>
+                  <th className="px-6 py-4 text-gray-400 font-bold uppercase tracking-wider text-[10px]">Status</th>
+                  <th className="px-6 py-4 text-gray-400 font-bold uppercase tracking-wider text-[10px]">Joined</th>
+                  <th className="px-6 py-4 text-gray-400 font-bold uppercase tracking-wider text-[10px] text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {filtered.map((user, i) => (
+                  <motion.tr 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    key={user._id} 
+                    className="hover:bg-gray-50/50 transition-colors group"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center font-bold text-primary shadow-sm border border-primary/20">
+                          {user.name?.[0]?.toUpperCase() || <FiUser />}
+                        </div>
+                        <span className="font-bold text-dark">{user.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2 text-gray-500 font-medium">
+                        <FiMail className="opacity-50" />
+                        {user.email}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <select
+                        value={user.role}
+                        onChange={e => updateRole(user._id, e.target.value)}
+                        className={`text-[10px] px-3 py-1.5 rounded-lg font-black uppercase tracking-widest border ${roleColors[user.role]} focus:outline-none cursor-pointer transition-all hover:shadow-sm`}
+                      >
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                        <option value="vendor">Vendor</option>
+                      </select>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${user.isVerified ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
+                        {user.isVerified ? <FiCheckCircle /> : <FiShield />}
+                        {user.isVerified ? 'Verified' : 'Pending'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-gray-400 font-medium">
+                      <div className="flex items-center gap-2 text-[11px]">
+                        <FiCalendar className="opacity-50" />
+                        {formatDate(user.createdAt)}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button
+                        onClick={() => deleteUser(user._id)}
+                        className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all active:scale-90"
+                        title="Delete User"
+                      >
+                        <FiTrash2 size={16} />
+                      </button>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           {filtered.length === 0 && (
-            <div className="text-center py-12 text-gray-400">
-              <p className="text-4xl mb-2">👥</p>
-              <p>No users found</p>
+            <div className="text-center py-20 bg-gray-50/30">
+              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                <FiUsers size={40} />
+              </div>
+              <h4 className="text-dark font-bold">No users found</h4>
+              <p className="text-gray-400 text-xs mt-1">Try searching for something else</p>
             </div>
           )}
         </div>

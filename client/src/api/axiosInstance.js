@@ -1,11 +1,12 @@
 import axios from 'axios'
 
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+
 const axiosInstance = axios.create({
-  baseURL:         'http://localhost:5000/api',
+  baseURL:         BASE_URL,
   withCredentials: true,
 })
 
-// Auto attach token to every request
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken')
@@ -17,17 +18,15 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
-// Auto refresh token on 401
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const original = error.config
-
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true
       try {
         const res = await axios.post(
-          'http://localhost:5000/api/auth/refresh-token',
+          `${BASE_URL}/auth/refresh-token`,
           {},
           { withCredentials: true }
         )

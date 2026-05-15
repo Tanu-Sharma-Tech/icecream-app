@@ -25,7 +25,7 @@ const Home = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="max-w-6xl mx-auto px-4 py-16 flex flex-col md:flex-row items-center gap-12">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16 flex flex-col md:flex-row items-center gap-12">
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -146,18 +146,66 @@ const Home = () => {
       </section>
 
       {/* CTA Banner */}
-      <section className="bg-primary py-16 mx-4 md:mx-8 rounded-3xl mb-16">
-        <div className="text-center text-white">
-          <h2 className="text-4xl font-bold mb-4">Ready to Order?</h2>
-          <p className="text-orange-100 mb-8 text-lg">
-            Build your perfect ice cream and get it delivered!
-          </p>
-          <Link
-            to="/shop"
-            className="bg-white text-primary font-bold px-10 py-4 rounded-full text-lg hover:bg-orange-50 transition-all"
+      <section className="relative py-20 px-6 mx-4 md:mx-8 mb-24 overflow-hidden rounded-[2.5rem] group">
+        {/* Background Layer */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary via-orange-500 to-primary transition-transform duration-700 group-hover:scale-105" />
+        
+        {/* Abstract Decorative Shapes */}
+        <div className="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-black/5 rounded-full blur-3xl translate-x-1/4 translate-y-1/4" />
+
+        {/* Floating Decorative Elements */}
+        <div className="absolute inset-0 pointer-events-none">
+          {[
+            { e: '🍦', t: '10%', l: '10%', d: 0 },
+            { e: '🍨', t: '20%', r: '15%', d: 1 },
+            { e: '🍧', b: '15%', l: '20%', d: 0.5 },
+            { e: '🧁', b: '20%', r: '10%', d: 1.5 },
+            { e: '🍒', t: '50%', l: '5%', d: 0.8 },
+            { e: '🍫', b: '40%', r: '5%', d: 1.2 },
+          ].map((item, i) => (
+            <motion.div
+              key={i}
+              className="absolute text-4xl md:text-5xl opacity-20 md:opacity-40 filter grayscale-[0.2]"
+              style={{ 
+                top: item.t, left: item.l, right: item.r, bottom: item.b 
+              }}
+              animate={{ 
+                y: [0, -20, 0],
+                rotate: [0, 15, -15, 0],
+                scale: [1, 1.1, 1]
+              }}
+              transition={{ 
+                duration: 4 + i, 
+                repeat: Infinity, 
+                delay: item.d,
+                ease: "easeInOut"
+              }}
+            >
+              {item.e}
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="relative z-10 max-w-2xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
           >
-            Start Building
-          </Link>
+            <h2 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight">
+              Ready to <span className="italic font-serif">Order?</span>
+            </h2>
+            <p className="text-orange-50 mb-10 text-lg md:text-xl font-medium max-w-lg mx-auto leading-relaxed">
+              Experience the art of the perfect scoop. Build your masterpiece and have it delivered in minutes.
+            </p>
+            <Link
+              to="/shop"
+              className="inline-flex items-center gap-3 bg-white text-primary font-black px-12 py-5 rounded-3xl text-lg uppercase tracking-widest shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all"
+            >
+              Start Building <span className="text-2xl">→</span>
+            </Link>
+          </motion.div>
         </div>
       </section>
 

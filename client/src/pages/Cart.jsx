@@ -139,15 +139,17 @@ const Cart = () => {
                     className="bg-white rounded-2xl p-4 flex gap-4 items-center shadow-sm"
                   >
                     {/* Image */}
-                    <div className="w-20 h-20 bg-orange-50 rounded-xl flex items-center justify-center text-4xl flex-shrink-0">
+                    <Link to={item._id.startsWith('custom-') ? '#' : `/product/${item._id}`} className="w-20 h-20 bg-orange-50 rounded-xl flex items-center justify-center text-4xl flex-shrink-0 overflow-hidden hover:scale-105 transition-transform">
                       {item.image ? (
                         <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-xl" />
                       ) : '🍦'}
-                    </div>
+                    </Link>
 
                     {/* Details */}
                     <div className="flex-1">
-                      <h3 className="font-bold text-dark">{item.name}</h3>
+                      <Link to={item._id.startsWith('custom-') ? '#' : `/product/${item._id}`}>
+                        <h3 className="font-bold text-dark hover:text-primary transition-colors cursor-pointer">{item.name}</h3>
+                      </Link>
                       <p className="text-sm text-gray-500 capitalize">
                         Size: {item.size}
                         {item.toppings?.length > 0 && ` • ${item.toppings.join(', ')}`}

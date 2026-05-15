@@ -9,12 +9,13 @@ import {
   toggleStock,
   getFeaturedProducts,
   getProductsByCategory,
+  addReview,
 } from '../controllers/productController.js'
 import { protect } from '../middleware/authMiddleware.js'
 import { adminOnly, adminOrVendor } from '../middleware/roleGuard.js'
+import upload from '../middleware/uploadMiddleware.js'
 
 const router = express.Router()
-const upload = multer({ dest: 'uploads/' })
 
 // ⚠️ IMPORTANT: specific routes MUST come before /:id
 router.get('/featured',           getFeaturedProducts)
@@ -27,5 +28,6 @@ router.post('/',                      protect, adminOrVendor, upload.single('ima
 router.put('/:id',                    protect, adminOrVendor, upload.single('image'), updateProduct)
 router.delete('/:id',                 protect, adminOnly,                             deleteProduct)
 router.patch('/:id/toggle-stock',     protect, adminOrVendor,                        toggleStock)
+router.post('/:id/reviews',           protect,                                        addReview)
 
 export default router

@@ -120,10 +120,17 @@ const VendorPanel = () => {
             {tabs.find(t => t.key === activeTab)?.emoji}{' '}
             {tabs.find(t => t.key === activeTab)?.label}
           </h1>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-500 hidden md:block">{user?.name}</span>
-            <div className="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-white font-bold text-sm">
-              {user?.name?.[0]?.toUpperCase()}
+          <div 
+            onClick={() => navigate('/profile')}
+            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-all group"
+          >
+            <span className="text-sm text-gray-500 hidden md:block group-hover:text-primary transition-colors">{user?.name}</span>
+            <div className="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-white font-bold text-sm shadow-glow group-hover:scale-110 transition-transform overflow-hidden">
+              {user?.profileImage ? (
+                <img src={user.profileImage} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                user?.name?.[0]?.toUpperCase()
+              )}
             </div>
           </div>
         </div>
@@ -222,13 +229,19 @@ const VendorPanel = () => {
                 ) : (
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {products.slice(0, 6).map(product => (
-                      <div key={product._id} className="bg-orange-50 rounded-xl p-3 flex items-center gap-2">
-                        <span className="text-2xl">🍦</span>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-dark text-sm truncate">{product.name}</p>
-                          <p className="text-xs text-primary font-bold">₹{product.basePrice}</p>
+                      <div key={product._id} className="bg-orange-50 rounded-xl p-3 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-white">
+                          {product.image ? (
+                            <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-xl">🍦</div>
+                          )}
                         </div>
-                        <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${product.inStock ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'}`}>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-dark text-sm truncate">{product.name}</p>
+                          <p className="text-xs text-primary font-black">₹{product.basePrice}</p>
+                        </div>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-black uppercase flex-shrink-0 ${product.inStock ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'}`}>
                           {product.inStock ? 'In' : 'Out'}
                         </span>
                       </div>

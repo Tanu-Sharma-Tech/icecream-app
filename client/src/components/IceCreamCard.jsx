@@ -1,6 +1,7 @@
 import { useState }      from 'react'
 import { motion }        from 'framer-motion'
 import { useDispatch }   from 'react-redux'
+import { Link }          from 'react-router-dom'
 import { addToCart }     from '../features/cart/cartSlice'
 import toast             from 'react-hot-toast'
 
@@ -35,12 +36,12 @@ const IceCreamCard = ({ product }) => {
       className="bg-white rounded-2xl shadow-soft overflow-hidden hover:shadow-medium transition-shadow"
     >
       {/* Image */}
-      <div className="relative bg-gradient-to-br from-orange-50 to-yellow-50 h-48 flex items-center justify-center overflow-hidden">
+      <Link to={`/product/${product._id}`} className="relative bg-gradient-to-br from-orange-50 to-yellow-50 h-48 flex items-center justify-center overflow-hidden cursor-pointer group">
         {product.image ? (
           <img
             src={product.image}
             alt={product.name}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
           />
         ) : (
           <motion.div
@@ -72,11 +73,13 @@ const IceCreamCard = ({ product }) => {
             {product.category}
           </span>
         </div>
-      </div>
+      </Link>
 
       {/* Content */}
       <div className="p-4">
-        <h3 className="font-bold text-dark text-base mb-1 line-clamp-1">{product.name}</h3>
+        <Link to={`/product/${product._id}`}>
+          <h3 className="font-bold text-dark text-base mb-1 line-clamp-1 hover:text-primary transition-colors cursor-pointer">{product.name}</h3>
+        </Link>
         <p className="text-gray-400 text-xs mb-3 line-clamp-2">{product.description}</p>
 
         {/* Flavors */}

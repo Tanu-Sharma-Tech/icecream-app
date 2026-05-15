@@ -6,7 +6,7 @@ import ScoopBuilder from '../components/ScoopBuilder'
 import axiosInstance from '../api/axiosInstance'
 import toast from 'react-hot-toast'
 import Footer from '../components/Footer'
-import LoadingSpinner from '../components/LoadingSpinner'
+import SimpleLoader from '../components/SimpleLoader'
 
 const categories = ['all', 'icecream', 'sundae', 'milkshake', 'popsicle', 'waffle']
 
@@ -43,7 +43,7 @@ const Shop = () => {
       <Navbar />
 
       {/* Header */}
-      <div className="bg-white py-10 px-4 text-center shadow-sm">
+      <div className="bg-white pt-28 pb-10 px-4 text-center shadow-sm">
         <h1 className="text-4xl font-bold text-dark mb-2">Our Ice Cream Menu</h1>
         <p className="text-gray-500">Fresh, handcrafted flavors made daily</p>
 
@@ -104,7 +104,9 @@ const Shop = () => {
 
         {/* Products Grid */}
         {loading ? (
-          <LoadingSpinner text="Loading ice creams..." />
+          <div className="py-20">
+            <SimpleLoader text="Finding perfect scoops..." />
+          </div>
             ) : filtered.length === 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (

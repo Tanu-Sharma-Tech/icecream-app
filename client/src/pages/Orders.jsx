@@ -99,8 +99,8 @@ const OrderCard = ({ order }) => {
               <span className="font-bold text-dark text-sm">
                 #{order._id.slice(-8).toUpperCase()}
               </span>
-              <span className={`text-xs px-3 py-1 rounded-full font-medium capitalize ${statusColors[order.orderStatus]}`}>
-                {order.orderStatus.replace('_', ' ')}
+              <span className={`text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider ${statusColors[order.orderStatus]}`}>
+                {order.orderStatus.replace(/_/g, ' ')}
               </span>
               <span className="text-xs bg-orange-50 text-primary px-3 py-1 rounded-full font-medium">
                 COD
@@ -265,19 +265,19 @@ const Orders = () => {
     <div className="min-h-screen bg-light">
       <Navbar />
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 pt-28 pb-12">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-dark">My Orders</h1>
-            <p className="text-gray-500 mt-1">{orders.length} order{orders.length !== 1 ? 's' : ''} total</p>
+            <h1 className="text-4xl font-black text-dark tracking-tight">My Orders</h1>
+            <p className="text-gray-500 mt-1 font-medium">{orders.length} order{orders.length !== 1 ? 's' : ''} total</p>
           </div>
           <button
             onClick={() => dispatch(getMyOrders())}
-            className="text-primary hover:text-orange-600 font-medium text-sm flex items-center gap-1"
+            className="w-fit px-4 py-2 bg-white border border-gray-100 rounded-xl text-primary hover:bg-orange-50 font-bold text-sm flex items-center gap-2 shadow-sm transition-all active:scale-95"
           >
-            Refresh
+            <span className="text-lg">🔄</span> Refresh
           </button>
         </div>
 
@@ -287,13 +287,13 @@ const Orders = () => {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all capitalize ${
+              className={`px-6 py-2.5 rounded-2xl text-sm font-bold whitespace-nowrap transition-all ${
                 filter === f
-                  ? 'bg-primary text-white'
-                  : 'bg-white text-gray-600 hover:bg-orange-50 border border-gray-200'
+                  ? 'bg-primary text-white shadow-glow'
+                  : 'bg-white text-gray-500 hover:bg-orange-50 border border-gray-100'
               }`}
             >
-              {f === 'all' ? 'All' : f.replace('_', ' ')}
+              {f === 'all' ? 'All Orders' : f.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
             </button>
           ))}
         </div>
@@ -302,7 +302,7 @@ const Orders = () => {
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map(i => (
-              <div key={i} className="bg-white rounded-2xl h-32 animate-pulse" />
+              <div key={i} className="skeleton h-32 w-full opacity-50" />
             ))}
           </div>
         ) : filtered.length === 0 ? (

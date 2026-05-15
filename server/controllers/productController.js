@@ -74,26 +74,24 @@ export const createProduct = async (req, res) => {
 
     // Upload image to cloudinary if provided
     if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'icecream-app/products',
-      })
-      imageUrl = result.secure_url
+      const { uploadToCloudinary } = await import('../utils/cloudinaryUpload.js')
+      imageUrl = await uploadToCloudinary(req.file.buffer, 'products')
     }
 
     const product = await Product.create({
       name,
       description,
       category,
-      flavors:       flavors       ? JSON.parse(flavors)   : [],
-      toppings:      toppings      ? JSON.parse(toppings)  : [],
-      sizes:         sizes         ? JSON.parse(sizes)     : [],
-      basePrice,
+      flavors:       flavors  ? (typeof flavors === 'string' ? JSON.parse(flavors) : flavors)   : [],
+      toppings:      toppings ? (typeof toppings === 'string' ? JSON.parse(toppings) : toppings)  : [],
+      sizes:         sizes    ? (typeof sizes === 'string' ? JSON.parse(sizes) : sizes)     : [],
+      basePrice:     Number(basePrice),
       image:         imageUrl,
-      inStock:       inStock !== undefined ? inStock : true,
-      stockQuantity: stockQuantity || 100,
-      isFeatured:    isFeatured || false,
-      tags:          tags ? JSON.parse(tags) : [],
-      vendor:        vendor || null,
+      inStock:       inStock !== undefined ? (String(inStock) === 'true' || inStock === true) : true,
+      stockQuantity: stockQuantity ? Number(stockQuantity) : 100,
+      isFeatured:    isFeatured !== undefined ? (String(isFeatured) === 'true' || isFeatured === true) : false,
+      tags:          tags ? (typeof tags === 'string' ? JSON.parse(tags) : tags) : [],
+      vendor:        vendor || req.user._id,
     })
 
     res.status(201).json({ success: true, product })
@@ -113,28 +111,47 @@ export const updateProduct = async (req, res) => {
     const updates = { ...req.body }
 
     // Parse JSON strings if sent as form data
-    if (updates.flavors)  updates.flavors  = JSON.parse(updates.flavors)
-    if (updates.toppings) updates.toppings = JSON.parse(updates.toppings)
-    if (updates.sizes)    updates.sizes    = JSON.parse(updates.sizes)
-    if (updates.tags)     updates.tags     = JSON.parse(updates.tags)
+    if (updates.flavors)  updates.flavors  = typeof updates.flavors === 'string' ? JSON.parse(updates.flavors) : updates.flavors
+    if (updates.toppings) updates.toppings = typeof updates.toppings === 'string' ? JSON.parse(updates.toppings) : updates.toppings
+    if (updates.sizes)    updates.sizes    = typeof updates.sizes === 'string' ? JSON.parse(updates.sizes) : updates.sizes
+    if (updates.tags)     updates.tags     = typeof updates.tags === 'string' ? JSON.parse(updates.tags) : updates.tags
+    
+    if (updates.basePrice)     updates.basePrice = Number(updates.basePrice)
+    if (updates.stockQuantity) updates.stockQuantity = Number(updates.stockQuantity)
+    if (updates.inStock)       updates.inStock = String(updates.inStock) === 'true' || updates.inStock === true
+    if (updates.isFeatured)    updates.isFeatured = String(updates.isFeatured) === 'true' || updates.isFeatured === true
 
     // Upload new image if provided
+    console.log('File Received:', req.file)
+    console.log('Body Received:', req.body)
+
     if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'icecream-app/products',
-      })
-      updates.image = result.secure_url
+      try {
+        const { uploadToCloudinary } = await import('../utils/cloudinaryUpload.js')
+        const uploadedUrl = await uploadToCloudinary(req.file.buffer, 'products')
+        console.log('Cloudinary Upload Success:', uploadedUrl)
+        updates.image = uploadedUrl
+      } catch (uploadError) {
+        console.error('Cloudinary Upload Error:', uploadError)
+        return res.status(500).json({ success: false, message: 'Image upload failed' })
+      }
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      updates,
+      { $set: updates }, // Use $set to be explicit
       { new: true, runValidators: true }
     )
 
     res.status(200).json({ success: true, product: updatedProduct })
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message })
+    console.error('UPDATE_PRODUCT_ERROR:', error)
+    res.status(500).json({ 
+      success: false, 
+      message: error.name === 'ValidationError' 
+        ? Object.values(error.errors).map(e => e.message).join(', ') 
+        : error.message 
+    })
   }
 }
 
@@ -182,6 +199,34 @@ export const getFeaturedProducts = async (req, res) => {
       .populate('vendor', 'storeName')
 
     res.status(200).json({ success: true, products })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}
+
+// ─── ADD REVIEW ───────────────────────────────────────────
+export const addReview = async (req, res) => {
+  try {
+    const { rating, comment } = req.body
+    const product = await Product.findById(req.params.id)
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' })
+    }
+
+    const review = {
+      user:    req.user._id,
+      name:    req.user.name,
+      rating:  Number(rating),
+      comment,
+    }
+
+    product.reviews.push(review)
+    product.ratings.count = product.reviews.length
+    product.ratings.average = product.reviews.reduce((acc, item) => item.rating + acc, 0) / product.reviews.length
+
+    await product.save()
+    res.status(201).json({ success: true, message: 'Review added', product })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
   }

@@ -282,3 +282,55 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ success: false, message: error.message })
   }
 }
+
+// ─── UPDATE PROFILE ───────────────────────────────────────
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, phone, street, city, state, pincode } = req.body
+    
+    // Server-side validation
+    if (!name || name.trim().length < 2) {
+      return res.status(400).json({ success: false, message: 'Name must be at least 2 characters' })
+    }
+    
+    if (phone && !/^\d{10}$/.test(phone)) {
+      return res.status(400).json({ success: false, message: 'Phone number must be 10 digits' })
+    }
+
+    const updateData = { 
+      name, 
+      phone,
+      address: {
+        street:  street  || '',
+        city:    city    || '',
+        state:   state   || '',
+        pincode: pincode || '',
+      }
+    }
+
+    // Handle image upload if present
+    if (req.file) {
+      const { uploadToCloudinary } = await import('../utils/cloudinaryUpload.js')
+      const imageUrl = await uploadToCloudinary(req.file.buffer)
+      updateData.profileImage = imageUrl
+    }
+    
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      updateData,
+      { new: true, runValidators: true }
+    ).select('-password -refreshToken')
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' })
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'Profile updated successfully', 
+      user 
+    })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}

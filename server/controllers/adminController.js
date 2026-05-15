@@ -154,26 +154,65 @@ export const deleteUser = async (req, res) => {
 export const getAllVendorsAdmin = async (req, res) => {
   try {
     const { page = 1, limit = 20, isApproved } = req.query
-
-    const filter = {}
-    if (isApproved !== undefined) filter.isApproved = isApproved === 'true'
-
     const skip = (Number(page) - 1) * Number(limit)
 
-    const [vendors, total] = await Promise.all([
-      Vendor.find(filter)
-        .populate('user', 'name email')
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(Number(limit)),
-      Vendor.countDocuments(filter),
+    // Aggregate to find all users with role 'vendor' and their optional profile
+    const aggregatePipeline = [
+      { $match: { role: 'vendor' } },
+      {
+        $lookup: {
+          from: 'vendors',
+          localField: '_id',
+          foreignField: 'user',
+          as: 'profile'
+        }
+      },
+      { $unwind: { path: '$profile', preserveNullAndEmptyArrays: true } }
+    ]
+
+    // Apply isApproved filter if provided
+    if (isApproved !== undefined) {
+      const approved = isApproved === 'true'
+      aggregatePipeline.push({
+        $match: {
+          'profile.isApproved': approved
+        }
+      })
+    }
+
+    const [allVendors, totalCount] = await Promise.all([
+      User.aggregate([
+        ...aggregatePipeline,
+        { $sort: { createdAt: -1 } },
+        { $skip: skip },
+        { $limit: Number(limit) }
+      ]),
+      User.aggregate([
+        ...aggregatePipeline,
+        { $count: 'total' }
+      ])
     ])
+
+    // Format the response to match what the frontend expects
+    const vendors = allVendors.map(v => ({
+      _id:        v.profile?._id || `temp_${v._id}`, // Use profile ID or temp ID
+      user:       { _id: v._id, name: v.name, email: v.email },
+      storeName:  v.profile?.storeName || 'Profile Incomplete',
+      phone:      v.profile?.phone || 'N/A',
+      address:    v.profile?.address || { city: 'N/A', state: 'N/A' },
+      isApproved: v.profile?.isApproved || false,
+      isActive:   v.profile?.isActive   || false,
+      products:   v.profile?.products   || [],
+      totalOrders:v.profile?.totalOrders || 0,
+      createdAt:  v.profile?.createdAt  || v.createdAt,
+      isMissingProfile: !v.profile
+    }))
 
     res.status(200).json({
       success: true,
-      total,
+      total:      totalCount[0]?.total || 0,
       page:       Number(page),
-      totalPages: Math.ceil(total / Number(limit)),
+      totalPages: Math.ceil((totalCount[0]?.total || 0) / Number(limit)),
       vendors,
     })
   } catch (error) {

@@ -87,7 +87,7 @@ const ProductDetail = () => {
     <div className="min-h-screen bg-light">
       <Navbar />
       
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 pt-32 pb-12">
         <Link to="/shop" className="inline-flex items-center gap-2 text-gray-500 hover:text-primary transition-colors mb-8 font-bold text-sm uppercase tracking-widest">
           <FiArrowLeft /> Back to Shop
         </Link>

@@ -101,7 +101,7 @@ const Cart = () => {
     <div className="min-h-screen bg-light">
       <Navbar />
 
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="max-w-5xl mx-auto px-4 pt-32 pb-12">
 
         {/* Step Indicator */}
         <div className="flex items-center justify-center gap-4 mb-10">

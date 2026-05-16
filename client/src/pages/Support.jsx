@@ -1,13 +1,123 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLocation } from 'react-router-dom'
-import { FiChevronRight, FiHelpCircle, FiTruck, FiShield, FiFileText, FiDollarSign, FiArrowLeft } from 'react-icons/fi'
+import { FiChevronRight, FiHelpCircle, FiTruck, FiShield, FiFileText, FiDollarSign, FiArrowLeft, FiMessageCircle, FiX, FiSend } from 'react-icons/fi'
+import { useSelector } from 'react-redux'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 
+const Chatbot = ({ isOpen, onClose, role = 'user' }) => {
+  const [messages, setMessages] = useState([
+    { type: 'bot', text: `Hello! I'm your Sweet Assistant. How can I help you today as a ${role}?` }
+  ])
+  
+  const chatbotData = {
+    user: [
+      { q: "Where is my order?", a: "You can track your order in real-time in the 'Orders' section of your account profile." },
+      { q: "Scoop Builder help?", a: "Head over to the Shop and click 'Build Your Own Scoop' to create your custom masterpiece!" },
+      { q: "Delivery hours?", a: "We deliver artisanal scoops from 10:00 AM to 11:30 PM daily across Mumbai." },
+      { q: "Refund policy?", a: "We offer immediate replacements or refunds if your ice cream arrives melted or damaged." }
+    ],
+    vendor: [
+      { q: "Listing products?", a: "Navigate to your Vendor Dashboard > Inventory and click 'Add New Product' to get started." },
+      { q: "Payout schedule?", a: "Vendor payouts are automatically processed every Monday for all completed orders from the previous week." },
+      { q: "Store settings?", a: "You can update your shop's description and operating hours in the 'Store Profile' section of your dashboard." }
+    ],
+    admin: [
+      { q: "Vendor approval?", a: "Check 'Pending Applications' in your Admin Panel to review and approve new shop partners." },
+      { q: "Revenue reports?", a: "Comprehensive financial analytics are available under the 'Financials' tab on your main dashboard." },
+      { q: "System alerts?", a: "Use the 'Global Broadcast' tool to send notifications to all users or specific roles." }
+    ]
+  }
+
+  const handleSelectQuestion = (item) => {
+    setMessages(prev => [
+      ...prev, 
+      { type: 'user', text: item.q },
+      { type: 'bot', text: item.a }
+    ])
+  }
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-dark/20 backdrop-blur-sm z-[100]"
+          />
+          <motion.div
+            initial={{ opacity: 0, y: 100, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 100, scale: 0.9 }}
+            className="fixed bottom-8 right-8 w-full max-w-[400px] bg-white rounded-[2.5rem] shadow-hard z-[101] overflow-hidden border border-gray-100"
+          >
+            {/* Header */}
+            <div className="bg-primary p-6 text-white flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  <FiMessageCircle size={20} />
+                </div>
+                <div>
+                  <h3 className="font-black text-sm uppercase tracking-widest">Sweet Assistant</h3>
+                  <p className="text-[10px] opacity-80 font-bold capitalize">{role} Mode Active</p>
+                </div>
+              </div>
+              <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+                <FiX size={20} />
+              </button>
+            </div>
+
+            {/* Chat Area */}
+            <div className="h-[400px] overflow-y-auto p-6 space-y-4 bg-gray-50/50">
+              {messages.map((m, i) => (
+                <motion.div
+                  initial={{ opacity: 0, x: m.type === 'bot' ? -10 : 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  key={i}
+                  className={`flex ${m.type === 'bot' ? 'justify-start' : 'justify-end'}`}
+                >
+                  <div className={`max-w-[80%] p-4 rounded-2xl text-sm font-medium ${
+                    m.type === 'bot' 
+                    ? 'bg-white text-dark shadow-sm rounded-tl-none' 
+                    : 'bg-primary text-white shadow-glow rounded-tr-none'
+                  }`}>
+                    {m.text}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Questions area */}
+            <div className="p-4 bg-white border-t border-gray-50">
+              <p className="text-[10px] font-black uppercase text-gray-400 mb-3 px-2">Frequently Asked</p>
+              <div className="flex flex-wrap gap-2">
+                {chatbotData[role]?.map((item, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleSelectQuestion(item)}
+                    className="px-4 py-2 bg-gray-50 hover:bg-orange-50 hover:text-primary border border-gray-100 rounded-xl text-xs font-bold transition-all text-left"
+                  >
+                    {item.q}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  )
+}
+
 const Support = () => {
   const { hash } = useLocation()
+  const { user } = useSelector(state => state.auth)
   const [activeTab, setActiveTab] = useState('help-center')
+  const [isChatOpen, setIsChatOpen] = useState(false)
 
   useEffect(() => {
     if (hash) {
@@ -153,16 +263,32 @@ const Support = () => {
 
               <div className="mt-10 p-8 bg-dark rounded-[2.5rem] text-white relative overflow-hidden group shadow-hard">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-3xl rounded-full translate-x-1/3 -translate-y-1/3 group-hover:bg-primary/30 transition-colors" />
-                <div className="relative z-10">
+                <div className="relative z-10 text-center">
                   <h4 className="font-black text-lg mb-2 italic font-serif">Still have questions?</h4>
-                  <p className="text-[11px] text-gray-400 mb-6 leading-relaxed font-medium">Our artisanal support team is here to assist you with every detail.</p>
-                  <a href="mailto:support@sweetmovement.com" className="flex items-center justify-center gap-2 w-full py-4 bg-white text-dark rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-xl active:scale-95">
-                    Email Assistance
-                  </a>
+                  <p className="text-[11px] text-gray-400 mb-6 leading-relaxed font-medium">Get instant help from our AI-powered Sweet Assistant.</p>
+                  
+                  <div className="space-y-3">
+                    <button 
+                      onClick={() => setIsChatOpen(true)}
+                      className="flex items-center justify-center gap-2 w-full py-4 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-all shadow-glow active:scale-95"
+                    >
+                      <FiMessageCircle /> Chat with Assistant
+                    </button>
+                    
+                    <a href="mailto:support@sweetmovement.com" className="flex items-center justify-center gap-2 w-full py-3 text-gray-400 hover:text-white rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all">
+                      Or Email Support
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
           </aside>
+
+          <Chatbot 
+            isOpen={isChatOpen} 
+            onClose={() => setIsChatOpen(false)} 
+            role={user?.role || 'user'}
+          />
 
           {/* Content Area */}
           <div className="flex-1">

@@ -19,6 +19,7 @@ import AdminDashboard from './pages/admin/AdminDashboard'
 import ProfileSettings from './pages/ProfileSettings'
 import ProductDetail from './pages/ProductDetail'
 import Support       from './pages/Support'
+import GlobalChat    from './components/GlobalChat'
 import { motion, AnimatePresence } from 'framer-motion'
 
 function App() {
@@ -81,6 +82,7 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPassword />} />
             </Routes>
             <ScrollToTop />
+            <GlobalChat />
           </Router>
         </motion.div>
       )}

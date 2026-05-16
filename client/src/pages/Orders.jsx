@@ -3,7 +3,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { motion, AnimatePresence } from 'framer-motion'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
-import { getMyOrders } from '../features/orders/orderSlice'
+import { getMyOrders, cancelOrder } from '../features/orders/orderSlice'
+import ConfirmationModal from '../components/ConfirmationModal'
+import toast from 'react-hot-toast'
 
 const statusSteps = [
   { key: 'placed',            label: 'Order Placed',     emoji: '📋' },
@@ -76,12 +78,21 @@ const OrderTracker = ({ status }) => {
 
 const OrderCard = ({ order }) => {
   const [expanded, setExpanded] = useState(false)
+  const [showCancelModal, setShowCancelModal] = useState(false)
+  const dispatch = useDispatch()
 
   const formatDate = (date) =>
     new Date(date).toLocaleDateString('en-IN', {
       day: 'numeric', month: 'short', year: 'numeric',
       hour: '2-digit', minute: '2-digit',
     })
+
+  const handleCancel = () => {
+    dispatch(cancelOrder({ orderId: order._id, reason: 'Cancelled by customer' }))
+      .unwrap()
+      .then(() => toast.success('Order cancelled'))
+      .catch(err => toast.error(err))
+  }
 
   return (
     <motion.div
@@ -97,9 +108,6 @@ const OrderCard = ({ order }) => {
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-3 flex-wrap">
-              <span className="font-bold text-dark text-sm">
-                #{order._id.slice(-8).toUpperCase()}
-              </span>
               <span className={`text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider ${statusColors[order.orderStatus]}`}>
                 {order.orderStatus.replace(/_/g, ' ')}
               </span>
@@ -148,22 +156,35 @@ const OrderCard = ({ order }) => {
                 <h4 className="font-bold text-dark mb-3 text-sm">Items Ordered</h4>
                 <div className="space-y-2">
                   {order.items.map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 bg-orange-50 rounded-xl p-3">
-                      <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
-                        {item.image ? (
-                          <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-xl" />
-                        ) : '🍦'}
+                    <div key={i} className="flex items-center gap-4 bg-gray-50/80 hover:bg-orange-50/50 transition-colors rounded-2xl p-4 border border-gray-100/50">
+                      <div className="w-16 h-16 bg-white rounded-xl shadow-sm overflow-hidden flex-shrink-0 flex items-center justify-center relative group">
+                        {(item.image || item.product?.image) ? (
+                          <img 
+                            src={item.image || item.product?.image} 
+                            alt={item.name} 
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-orange-100 to-pink-100 flex flex-col items-center justify-center">
+                            <span className="text-xl font-black text-primary/40 leading-none">
+                              {item.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                            </span>
+                            <span className="text-xs mt-1">🍦</span>
+                          </div>
+                        )}
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-dark text-sm">{item.name}</p>
-                        <p className="text-xs text-gray-500 capitalize">
-                          {item.size} size
-                          {item.toppings?.length > 0 && ` • ${item.toppings.join(', ')}`}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-dark text-base truncate">{item.name}</p>
+                        <p className="text-xs text-gray-500 font-medium capitalize flex items-center gap-2">
+                          <span className="bg-white px-2 py-0.5 rounded-md border border-gray-100 shadow-sm">{item.size}</span>
+                          {item.toppings?.length > 0 && (
+                            <span className="truncate opacity-60">• {item.toppings.join(', ')}</span>
+                          )}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-primary text-sm">₹{item.price}</p>
-                        <p className="text-xs text-gray-400">x{item.quantity}</p>
+                        <p className="font-black text-primary text-base">₹{item.price}</p>
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest opacity-70">Qty: {item.quantity}</p>
                       </div>
                     </div>
                   ))}
@@ -241,6 +262,34 @@ const OrderCard = ({ order }) => {
                   <span className="text-gray-600">{order.notes}</span>
                 </div>
               )}
+
+              {/* Cancel Button */}
+              {['placed', 'confirmed'].includes(order.orderStatus) && (
+                <div className="pt-4 border-t border-gray-100">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowCancelModal(true)
+                    }}
+                    className="w-full py-4 bg-red-50 text-red-500 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-red-500 hover:text-white transition-all active:scale-95 shadow-soft hover:shadow-glow"
+                  >
+                    Cancel Order
+                  </button>
+                  <p className="text-[10px] text-gray-400 text-center mt-2 font-bold uppercase tracking-tighter">
+                    Orders can only be cancelled before they are prepared
+                  </p>
+                </div>
+              )}
+
+              <ConfirmationModal
+                isOpen={showCancelModal}
+                onClose={() => setShowCancelModal(false)}
+                onConfirm={handleCancel}
+                title="Cancel Order?"
+                message="Are you sure you want to cancel this order? This action cannot be undone."
+                confirmText="Yes, Cancel Order"
+                cancelText="No, Keep It"
+              />
             </div>
           </motion.div>
         )}
@@ -260,7 +309,9 @@ const Orders = () => {
 
   const filtered = filter === 'all'
     ? orders
-    : orders.filter(o => o.orderStatus === filter)
+    : orders.filter(o => 
+        o.orderStatus?.toLowerCase().trim() === filter.toLowerCase().trim()
+      )
 
   return (
     <div className="min-h-screen bg-light">
@@ -312,13 +363,15 @@ const Orders = () => {
             animate={{ opacity: 1 }}
             className="text-center py-16"
           >
-            <div className="text-6xl mb-4">📦</div>
-            <h3 className="text-xl font-bold text-dark mb-2">No orders found</h3>
-            <p className="text-gray-500 mb-6">
-              {filter === 'all' ? 'You have not placed any orders yet' : `No ${filter.replace('_', ' ')} orders`}
+            <div className="text-6xl mb-4 grayscale opacity-20">📦</div>
+            <h3 className="text-xl font-bold text-dark mb-2 tracking-tight">No {filter === 'all' ? '' : filter.replace('_', ' ')} orders</h3>
+            <p className="text-gray-400 mb-6 text-sm font-medium">
+              {filter === 'all' 
+                ? 'Your basket is waiting for its first scoop!' 
+                : `We couldn't find any ${filter.replace('_', ' ')} orders in your history.`}
             </p>
-            <a href="/shop" className="btn-primary px-8 py-3">
-              Start Shopping
+            <a href="/shop" className="bg-primary text-white px-8 py-3 rounded-2xl font-black uppercase tracking-widest text-xs shadow-glow hover:bg-orange-600 transition-all inline-block active:scale-95">
+              Explore Flavors
             </a>
           </motion.div>
         ) : (

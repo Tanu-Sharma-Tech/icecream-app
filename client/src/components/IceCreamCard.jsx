@@ -82,24 +82,6 @@ const IceCreamCard = ({ product }) => {
         </Link>
         <p className="text-gray-400 text-xs mb-3 line-clamp-2">{product.description}</p>
 
-        {/* Flavors */}
-        {product.flavors?.length > 0 && (
-          <div className="flex gap-1 mb-3 flex-wrap">
-            {product.flavors.slice(0, 3).map((f, i) => (
-              <span
-                key={i}
-                className="text-xs px-2 py-0.5 rounded-full font-medium"
-                style={{ backgroundColor: (f.color || '#F97316') + '22', color: f.color || '#F97316' }}
-              >
-                {f.name}
-              </span>
-            ))}
-            {product.flavors.length > 3 && (
-              <span className="text-xs text-gray-400">+{product.flavors.length - 3}</span>
-            )}
-          </div>
-        )}
-
         {/* Size Picker */}
         {product.sizes?.length > 0 && (
           <div className="flex gap-1.5 mb-4">

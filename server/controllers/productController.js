@@ -16,12 +16,20 @@ export const getProducts = async (req, res) => {
 
     const filter = {}
 
-    if (category) filter.category = category
-    if (inStock !== undefined) filter.inStock = inStock === 'true'
-    if (search) filter.$text = { $search: search }
+    if (category && category !== 'all') {
+      filter.category = category
+    }
+    
+    if (inStock !== undefined && inStock !== '') {
+      filter.inStock = inStock === 'true'
+    }
+
+    if (search && search.trim() !== '') {
+      filter.$text = { $search: search }
+    }
 
     const sortObj = { [sort]: order === 'desc' ? -1 : 1 }
-    const skip    = (Number(page) - 1) * Number(limit)
+    const skip    = (Math.max(0, Number(page) - 1)) * Number(limit)
 
     const [products, total] = await Promise.all([
       Product.find(filter)
@@ -35,12 +43,18 @@ export const getProducts = async (req, res) => {
     res.status(200).json({
       success: true,
       total,
+      count:      products.length,
       page:       Number(page),
       totalPages: Math.ceil(total / Number(limit)),
       products,
     })
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message })
+    console.error('GET_PRODUCTS_ERROR:', error)
+    res.status(500).json({ 
+      success: false, 
+      message: 'Unable to load products. Please check database connection.',
+      error:   error.message 
+    })
   }
 }
 

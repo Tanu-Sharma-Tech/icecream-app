@@ -25,6 +25,18 @@ export const getMyOrders = createAsyncThunk(
   }
 )
 
+export const cancelOrder = createAsyncThunk(
+  'orders/cancel',
+  async ({ orderId, reason }, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.patch(`/orders/${orderId}/cancel`, { reason })
+      return res.data
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Cancellation failed')
+    }
+  }
+)
+
 const orderSlice = createSlice({
   name: 'orders',
   initialState: {
@@ -56,6 +68,18 @@ const orderSlice = createSlice({
         state.orders    = action.payload.orders
       })
       .addCase(getMyOrders.rejected,  (state, action) => {
+        state.isLoading = false
+        state.error     = action.payload
+      })
+
+    builder
+      .addCase(cancelOrder.pending, (state) => { state.isLoading = true })
+      .addCase(cancelOrder.fulfilled, (state, action) => {
+        state.isLoading = false
+        const index = state.orders.findIndex(o => o._id === action.payload.order._id)
+        if (index !== -1) state.orders[index] = action.payload.order
+      })
+      .addCase(cancelOrder.rejected, (state, action) => {
         state.isLoading = false
         state.error     = action.payload
       })

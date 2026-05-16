@@ -35,7 +35,7 @@ const Shop = () => {
   }
 
   const filtered = products.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase())
+    p.name.toLowerCase().includes(search.toLowerCase()) && p.inStock
   )
 
   return (
@@ -48,13 +48,18 @@ const Shop = () => {
         <p className="text-gray-500">Fresh, handcrafted flavors made daily</p>
 
         {/* Search */}
-        <div className="max-w-md mx-auto mt-6">
+        <div className="max-w-md mx-auto mt-8 relative group">
+          <div className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search flavors..."
-            className="input-field"
+            placeholder="Find your favorite flavor..."
+            className="w-full bg-gray-50 border-2 border-gray-100 rounded-[2rem] py-4 pl-14 pr-6 text-sm font-bold focus:outline-none focus:border-primary/30 focus:bg-white focus:shadow-medium transition-all"
           />
         </div>
       </div>
@@ -104,20 +109,16 @@ const Shop = () => {
 
         {/* Products Grid */}
         {loading ? (
-          <div className="py-20">
-            <SimpleLoader text="Finding perfect scoops..." />
-          </div>
-            ) : filtered.length === 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="bg-white rounded-2xl h-72 animate-pulse" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-16">
+          <div className="text-center py-20 bg-white/50 rounded-[3rem] border-2 border-dashed border-gray-100">
             <div className="text-6xl mb-4">🍦</div>
-            <h3 className="text-xl font-bold text-dark">No products found</h3>
-            <p className="text-gray-500 mt-2">Try a different category or search term</p>
+            <h3 className="text-xl font-black text-dark tracking-tight">No flavors found</h3>
+            <p className="text-gray-500 mt-2 font-medium">Try searching for something else or explore other categories.</p>
           </div>
         ) : (
           <motion.div

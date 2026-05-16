@@ -20,6 +20,7 @@ import ProfileSettings from './pages/ProfileSettings'
 import ProductDetail from './pages/ProductDetail'
 import Support       from './pages/Support'
 import GlobalChat    from './components/GlobalChat'
+import PageScrollManager from './components/PageScrollManager'
 import { motion, AnimatePresence } from 'framer-motion'
 
 function App() {
@@ -83,6 +84,7 @@ function App() {
             </Routes>
             <ScrollToTop />
             <GlobalChat />
+            <PageScrollManager />
           </Router>
         </motion.div>
       )}

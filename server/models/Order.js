@@ -12,6 +12,11 @@ const orderItemSchema = new mongoose.Schema({
   size:     { type: String, default: 'medium' },
   toppings: [{ type: String }],
   price:    { type: Number, required: true },
+  vendor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Vendor',
+    required: true,
+  },
 })
 
 const orderSchema = new mongoose.Schema(

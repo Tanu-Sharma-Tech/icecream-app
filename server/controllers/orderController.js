@@ -66,6 +66,7 @@ export const placeOrder = async (req, res) => {
         size:     item.size || 'medium',
         toppings: item.toppings || [],
         price,
+        vendor:   product.vendor,
       })
     }
 
@@ -96,6 +97,25 @@ export const placeOrder = async (req, res) => {
       message: 'Order placed successfully!',
       order,
     })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}
+
+// ─── GET VENDOR ORDERS ────────────────────────────────────
+export const getVendorOrders = async (req, res) => {
+  try {
+    const vendor = await Vendor.findOne({ user: req.user._id })
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: 'Vendor profile not found' })
+    }
+
+    // Find orders where at least one item belongs to this vendor
+    const orders = await Order.find({ 'items.vendor': vendor._id })
+      .populate('user', 'name email phone')
+      .sort({ createdAt: -1 })
+
+    res.status(200).json({ success: true, orders })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
   }

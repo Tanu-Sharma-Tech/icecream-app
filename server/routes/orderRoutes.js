@@ -2,6 +2,7 @@ import express from 'express'
 import {
   placeOrder,
   getMyOrders,
+  getVendorOrders,
   getOrderById,
   cancelOrder,
   updateOrderStatus,
@@ -9,18 +10,19 @@ import {
   getOrderStats,
   confirmCODPayment,
 } from '../controllers/orderController.js'
-import { protect }   from '../middleware/authMiddleware.js'
-import { adminOnly } from '../middleware/roleGuard.js'
+import { protect } from '../middleware/authMiddleware.js'
+import { authorize } from '../middleware/roleGuard.js'
 
 const router = express.Router()
 
 router.post('/',               protect,            placeOrder)
 router.get('/my-orders',       protect,            getMyOrders)
-router.get('/stats/overview',  protect, adminOnly, getOrderStats)
-router.get('/all',             protect, adminOnly, getAllOrders)
+router.get('/vendor-orders',   protect, authorize('vendor', 'admin'), getVendorOrders)
+router.get('/stats/overview',  protect, authorize('admin'), getOrderStats)
+router.get('/all',             protect, authorize('admin'), getAllOrders)
 router.get('/:id',             protect,            getOrderById)
-router.put('/:id/cancel',      protect,            cancelOrder)
-router.put('/:id/status',      protect, adminOnly, updateOrderStatus)
-router.put('/:id/confirm-cod', protect, adminOnly, confirmCODPayment)
+router.patch('/:id/cancel',    protect,            cancelOrder)
+router.put('/:id/status',      protect, authorize('vendor', 'admin'), updateOrderStatus)
+router.put('/:id/confirm-cod', protect, authorize('admin'), confirmCODPayment)
 
 export default router

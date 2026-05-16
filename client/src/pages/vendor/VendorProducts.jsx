@@ -17,6 +17,18 @@ const VendorProducts = ({ products, onRefresh }) => {
     priceS: 80, priceM: 120, priceL: 160
   })
 
+  // Filter States
+  const [search, setSearch] = useState('')
+  const [filterCategory, setFilterCategory] = useState('all')
+  const [filterStock, setFilterStock] = useState('all')
+
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase())
+    const matchesCategory = filterCategory === 'all' || p.category === filterCategory
+    const matchesStock = filterStock === 'all' || (filterStock === 'instock' ? p.inStock : !p.inStock)
+    return matchesSearch && matchesCategory && matchesStock
+  })
+
   const [editForm, setEditForm] = useState({
     name: '', description: '', category: '',
     basePrice: '', stockQuantity: '', inStock: true,
@@ -112,6 +124,7 @@ const VendorProducts = ({ products, onRefresh }) => {
         { label: 'large',  price: Number(editForm.priceL) }
       ]
       formData.append('sizes', JSON.stringify(sizes))
+      formData.append('flavors', JSON.stringify([{ name: editForm.name, color: '#FF7043' }]))
 
       if (imageFile) {
         formData.append('image', imageFile)
@@ -302,8 +315,55 @@ const VendorProducts = ({ products, onRefresh }) => {
         )}
       </AnimatePresence>
 
+      {/* Filters Section */}
+      <div className="bg-white p-6 rounded-3xl shadow-soft border border-gray-50 grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+        <div className="space-y-2">
+          <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Search Products</label>
+          <input 
+            type="text" 
+            placeholder="Search by name..." 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="input-field-new"
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Category</label>
+          <select 
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="input-field-new"
+          >
+            <option value="all">ALL CATEGORIES</option>
+            {['icecream','sundae','milkshake','popsicle','waffle','other'].map(c => (
+              <option key={c} value={c}>{c.toUpperCase()}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Stock Status</label>
+          <div className="flex gap-2">
+            {['all', 'instock', 'outstock'].map((s) => (
+              <button
+                key={s}
+                onClick={() => setFilterStock(s)}
+                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  filterStock === s 
+                  ? 'bg-dark text-white shadow-hard' 
+                  : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                }`}
+              >
+                {s === 'outstock' ? 'Out' : s}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {products.map((product, i) => (
+        {filteredProducts.map((product, i) => (
           <motion.div
             key={product._id}
             initial={{ opacity: 0, scale: 0.9 }}

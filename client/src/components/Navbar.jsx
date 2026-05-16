@@ -2,7 +2,7 @@ import { useState, useEffect }      from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useSelector, useDispatch }   from 'react-redux'
 import { motion, AnimatePresence }    from 'framer-motion'
-import { FiSearch, FiShoppingCart, FiUser, FiLogOut, FiMenu, FiX, FiHeart } from 'react-icons/fi'
+import { FiSearch, FiShoppingCart, FiUser, FiLogOut, FiMenu, FiX, FiHeart, FiInstagram, FiYoutube } from 'react-icons/fi'
 import { logoutUser }                 from '../features/auth/authSlice'
 import toast                          from 'react-hot-toast'
 
@@ -91,6 +91,28 @@ const Navbar = () => {
 
           {/* Right Side */}
           <div className="flex items-center gap-3">
+            {/* Instagram */}
+            <a 
+              href="https://www.instagram.com/swee_tmovement/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="p-2 text-gray-600 hover:text-primary transition-colors hidden sm:block"
+              title="Follow us on Instagram"
+            >
+              <FiInstagram size={20} />
+            </a>
+
+            {/* YouTube */}
+            <a 
+              href="https://www.youtube.com/channel/UCgx1tHHUTUuPb1CRcfNwF4g" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="p-2 text-gray-600 hover:text-red-500 transition-colors hidden sm:block"
+              title="Subscribe on YouTube"
+            >
+              <FiYoutube size={22} />
+            </a>
+
             {/* Search (Icon only for now) */}
             <button className="p-2 text-gray-600 hover:text-primary transition-colors hidden sm:block">
               <FiSearch size={20} />
@@ -113,11 +135,17 @@ const Navbar = () => {
             {/* Desktop Auth */}
             {user ? (
               <div className="hidden md:flex items-center gap-3 ml-2 border-l border-gray-200 pl-5">
-                <div className="text-right">
-                  <p className="text-xs font-black text-dark leading-none truncate max-w-[100px]">
+                <div className="text-right group-hover:opacity-80 transition-opacity">
+                  <p 
+                    className="text-xs font-black text-dark leading-none truncate max-w-[160px] cursor-default"
+                    title={user.name}
+                  >
                     {user.name}
                   </p>
-                  <p className="text-[10px] text-primary font-bold uppercase tracking-widest mt-1">{user.role}</p>
+                  <p className="text-[9px] text-primary font-black uppercase tracking-[0.2em] mt-1 flex justify-end items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-primary animate-pulse" />
+                    {user.role}
+                  </p>
                 </div>
                 
                 <div className="relative group">
@@ -220,6 +248,14 @@ const Navbar = () => {
                     </Link>
                   </div>
                 )}
+                <div className="pt-8 flex items-center justify-center gap-6 border-t border-gray-100 mt-6">
+                  <a href="https://www.instagram.com/swee_tmovement/" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-sm">
+                    <FiInstagram size={20} />
+                  </a>
+                  <a href="https://www.youtube.com/channel/UCgx1tHHUTUuPb1CRcfNwF4g" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                    <FiYoutube size={20} />
+                  </a>
+                </div>
               </div>
             </div>
           </motion.div>

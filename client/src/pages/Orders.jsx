@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { motion, AnimatePresence } from 'framer-motion'
 import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 import { getMyOrders } from '../features/orders/orderSlice'
 
 const statusSteps = [

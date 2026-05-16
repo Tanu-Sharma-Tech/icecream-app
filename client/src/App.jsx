@@ -18,6 +18,7 @@ import Orders        from './pages/Orders'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import ProfileSettings from './pages/ProfileSettings'
 import ProductDetail from './pages/ProductDetail'
+import Support       from './pages/Support'
 import { motion, AnimatePresence } from 'framer-motion'
 
 function App() {
@@ -63,6 +64,7 @@ function App() {
               <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/login"    element={<Auth />} />
               <Route path="/register" element={<Auth />} />
+              <Route path="/support"  element={<Support />} />
 
               {/* Protected routes */}
               <Route path="/cart"   element={<ProtectedRoute><Cart /></ProtectedRoute>} />

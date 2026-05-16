@@ -1,8 +1,26 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiInstagram, FiTwitter, FiFacebook, FiYoutube, FiMail, FiPhone, FiMapPin, FiSend } from 'react-icons/fi'
 import { motion } from 'framer-motion'
+import toast from 'react-hot-toast'
 
 const Footer = () => {
+  const [email, setEmail] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleSubscribe = (e) => {
+    e.preventDefault()
+    if (!email) return toast.error('Please enter your email')
+    
+    setLoading(true)
+    // Simulate API call
+    setTimeout(() => {
+      toast.success('Welcome to the Sweet Side! 🍦')
+      setEmail('')
+      setLoading(false)
+    }, 1500)
+  }
+
   return (
     <footer className="bg-dark text-gray-400 pt-20 pb-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -13,20 +31,31 @@ const Footer = () => {
           
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="max-w-md text-center md:text-left">
-              <h3 className="text-3xl font-black text-white mb-3 tracking-tight">Join the Sweet Side</h3>
-              <p className="text-gray-400">Subscribe to get exclusive offers, new flavor alerts and ice cream tips!</p>
+              <h3 className="text-3xl font-black text-white mb-3 tracking-tight italic font-serif">Join the Sweet Side</h3>
+              <p className="text-gray-400">Subscribe to get exclusive artisanal offers, new flavor alerts and ice cream tips!</p>
             </div>
             
-            <div className="w-full max-w-md relative">
+            <form onSubmit={handleSubscribe} className="w-full max-w-md relative">
               <input 
                 type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email" 
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-6 text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all pr-16"
+                disabled={loading}
+                className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-6 text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all pr-16 disabled:opacity-50"
               />
-              <button className="absolute right-2 top-2 bottom-2 bg-primary text-white w-12 rounded-xl flex items-center justify-center hover:bg-orange-600 transition-all shadow-glow active:scale-90">
-                <FiSend size={20} />
+              <button 
+                type="submit"
+                disabled={loading}
+                className="absolute right-2 top-2 bottom-2 bg-primary text-white w-12 rounded-xl flex items-center justify-center hover:bg-orange-600 transition-all shadow-glow active:scale-90 disabled:opacity-50"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <FiSend size={20} />
+                )}
               </button>
-            </div>
+            </form>
           </div>
         </div>
 
@@ -47,16 +76,19 @@ const Footer = () => {
             </p>
             <div className="flex gap-4">
               {[
-                { icon: <FiInstagram />, label: 'Instagram' },
-                { icon: <FiTwitter />,   label: 'Twitter' },
-                { icon: <FiFacebook />,  label: 'Facebook' },
-                { icon: <FiYoutube />,   label: 'Youtube' },
+                { icon: <FiInstagram />, label: 'Instagram', href: 'https://www.instagram.com/swee_tmovement/' },
+                { icon: <FiTwitter />,   label: 'Twitter',   href: '#' },
+                { icon: <FiFacebook />,  label: 'Facebook',  href: '#' },
+                { icon: <FiYoutube />,   label: 'Youtube',   href: 'https://www.youtube.com/channel/UCgx1tHHUTUuPb1CRcfNwF4g' },
               ].map((social, i) => (
                 <motion.a
                   key={i}
-                  href="#"
-                  whileHover={{ y: -5 }}
-                  className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all text-lg border border-white/5"
+                  href={social.href}
+                  target={social.href !== '#' ? "_blank" : undefined}
+                  rel={social.href !== '#' ? "noopener noreferrer" : undefined}
+                  whileHover={{ y: -5, scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all text-lg border border-white/5 shadow-soft hover:shadow-glow"
                 >
                   {social.icon}
                 </motion.a>
@@ -88,20 +120,20 @@ const Footer = () => {
 
           {/* Categories/Support */}
           <div>
-            <h4 className="text-white font-black uppercase tracking-widest text-xs mb-8">Support</h4>
+            <h4 className="text-white font-black uppercase tracking-widest text-xs mb-8">Support & Policies</h4>
             <ul className="space-y-4">
               {[
-                { label: 'Help Center' },
-                { label: 'Delivery Info' },
-                { label: 'Terms of Service' },
-                { label: 'Privacy Policy' },
-                { label: 'Refund Policy' },
+                { label: 'Help Center', icon: '❓', to: '/support#help-center' },
+                { label: 'Delivery Info', icon: '🚚', to: '/support#delivery-info' },
+                { label: 'Terms of Service', icon: '📄', to: '/support#terms' },
+                { label: 'Privacy Policy', icon: '🛡️', to: '/support#privacy' },
+                { label: 'Refund Policy', icon: '💰', to: '/support#refund' },
               ].map(link => (
                 <li key={link.label}>
-                  <a href="#" className="text-sm hover:text-primary transition-colors flex items-center gap-2 group">
-                    <span className="w-1.5 h-1.5 bg-primary/20 rounded-full group-hover:bg-primary transition-colors" />
+                  <Link to={link.to} className="text-sm hover:text-primary transition-colors flex items-center gap-3 group">
+                    <span className="text-xs grayscale group-hover:grayscale-0 transition-all">{link.icon}</span>
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -109,34 +141,45 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="text-white font-black uppercase tracking-widest text-xs mb-8">Contact Us</h4>
-            <ul className="space-y-6 text-sm">
-              <li className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary flex-shrink-0">
-                  <FiMail size={16} />
-                </div>
-                <div>
-                  <p className="text-white font-bold mb-1 italic">Email Support</p>
-                  <p className="text-xs">hello@sweetmovement.com</p>
-                </div>
+            <h4 className="text-white font-black uppercase tracking-widest text-xs mb-8">Get In Touch</h4>
+            <ul className="space-y-5 text-sm">
+              <li>
+                <a href="mailto:hello@sweetmovement.com" className="flex items-start gap-4 group cursor-pointer">
+                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary flex-shrink-0 group-hover:bg-primary group-hover:text-white transition-all shadow-soft">
+                    <FiMail size={18} />
+                  </div>
+                  <div>
+                    <p className="text-white font-bold mb-0.5 italic group-hover:text-primary transition-colors">Email Support</p>
+                    <p className="text-xs text-gray-400 group-hover:text-gray-300 transition-colors">hello@sweetmovement.com</p>
+                  </div>
+                </a>
               </li>
-              <li className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary flex-shrink-0">
-                  <FiPhone size={16} />
-                </div>
-                <div>
-                  <p className="text-white font-bold mb-1 italic">Phone</p>
-                  <p className="text-xs">+91 98765 43210</p>
-                </div>
+              <li>
+                <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer" className="flex items-start gap-4 group cursor-pointer">
+                  <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center text-green-500 flex-shrink-0 group-hover:bg-green-500 group-hover:text-white transition-all shadow-soft">
+                    <FiPhone size={18} />
+                  </div>
+                  <div>
+                    <p className="text-white font-bold mb-0.5 italic group-hover:text-green-500 transition-colors">WhatsApp Support</p>
+                    <p className="text-xs text-gray-400 group-hover:text-gray-300 transition-colors">+91 98765 43210 (Chat Only)</p>
+                  </div>
+                </a>
               </li>
-              <li className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary flex-shrink-0">
-                  <FiMapPin size={16} />
-                </div>
-                <div>
-                  <p className="text-white font-bold mb-1 italic">Location</p>
-                  <p className="text-xs">Marine Drive, Mumbai</p>
-                </div>
+              <li>
+                <a 
+                  href="https://www.google.com/maps/search/?api=1&query=Marine+Drive+Mumbai" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex items-start gap-4 group cursor-pointer"
+                >
+                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary flex-shrink-0 group-hover:bg-primary group-hover:text-white transition-all shadow-soft">
+                    <FiMapPin size={18} />
+                  </div>
+                  <div>
+                    <p className="text-white font-bold mb-0.5 italic group-hover:text-primary transition-colors">Flagship Store</p>
+                    <p className="text-xs text-gray-400 group-hover:text-gray-300 transition-colors">Marine Drive, Mumbai, India</p>
+                  </div>
+                </a>
               </li>
             </ul>
           </div>

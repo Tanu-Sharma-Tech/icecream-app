@@ -329,6 +329,7 @@ const Orders = () => {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   )
 }

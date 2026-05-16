@@ -74,5 +74,10 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
+orderSchema.index({ user: 1 })
+orderSchema.index({ orderStatus: 1 })
+orderSchema.index({ createdAt: -1 })
+orderSchema.index({ 'items.vendor': 1 })
+
 const Order = mongoose.model('Order', orderSchema)
 export default Order

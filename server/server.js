@@ -15,15 +15,32 @@ import './models/Product.js'
 import './models/Order.js'
 import './models/Vendor.js'
 
+import helmet from 'helmet'
+import xss    from 'xss-clean'
+import hpp    from 'hpp'
+import rateLimit from 'express-rate-limit'
+
 dotenv.config()
 connectDB()
 
 const app = express()
 
-// app.use(cors({
-//   origin: process.env.CLIENT_URL,
-//   credentials: true
-// }))
+// ─── SECURITY MIDDLEWARE ──────────────────────────────────
+app.use(helmet()) // Set security headers
+app.use(xss())    // Prevent XSS
+app.use(hpp())    // Prevent HTTP Parameter Pollution
+
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max:      100,            // Limit each IP to 100 requests per windowMs
+  message:  'Too many requests from this IP, please try again after 15 minutes',
+  standardHeaders: true,
+  legacyHeaders:   false,
+})
+
+// Apply limiter to all routes (or just /api)
+app.use('/api', limiter)
 
 app.use(cors({
   origin: [
@@ -34,7 +51,7 @@ app.use(cors({
   ].filter(Boolean),
   credentials: true,
 }))
-app.use(express.json())
+app.use(express.json({ limit: '10kb' })) // Limit body size to prevent DoS
 app.use(cookieParser())
 
 app.use('/api/auth', authRoutes)

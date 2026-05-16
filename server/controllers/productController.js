@@ -122,50 +122,53 @@ export const updateProduct = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Product not found' })
     }
 
-    const updates = { ...req.body }
+    // CHECK OWNERSHIP (unless Admin)
+    const vendor = await Vendor.findOne({ user: req.user._id })
+    const isOwner = vendor && product.vendor?.toString() === vendor._id.toString()
+    const isAdmin = req.user.role === 'admin'
 
-    // Parse JSON strings if sent as form data
-    if (updates.flavors)  updates.flavors  = typeof updates.flavors === 'string' ? JSON.parse(updates.flavors) : updates.flavors
-    if (updates.toppings) updates.toppings = typeof updates.toppings === 'string' ? JSON.parse(updates.toppings) : updates.toppings
-    if (updates.sizes)    updates.sizes    = typeof updates.sizes === 'string' ? JSON.parse(updates.sizes) : updates.sizes
-    if (updates.tags)     updates.tags     = typeof updates.tags === 'string' ? JSON.parse(updates.tags) : updates.tags
-    
-    if (updates.basePrice)     updates.basePrice = Number(updates.basePrice)
-    if (updates.stockQuantity) updates.stockQuantity = Number(updates.stockQuantity)
-    if (updates.inStock)       updates.inStock = String(updates.inStock) === 'true' || updates.inStock === true
-    if (updates.isFeatured)    updates.isFeatured = String(updates.isFeatured) === 'true' || updates.isFeatured === true
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ success: false, message: 'Not authorized to update this product' })
+    }
 
-    // Upload new image if provided
-    console.log('File Received:', req.file)
-    console.log('Body Received:', req.body)
+    const { 
+      name, description, category, flavors, toppings, 
+      sizes, basePrice, inStock, stockQuantity, isFeatured, tags 
+    } = req.body
 
+    const parseJSON = (str) => {
+      try { return typeof str === 'string' ? JSON.parse(str) : str } catch { return str }
+    }
+
+    const updates = {
+      name:        name        || product.name,
+      description: description || product.description,
+      category:    category    || product.category,
+      flavors:     parseJSON(flavors)  || product.flavors,
+      toppings:    parseJSON(toppings) || product.toppings,
+      sizes:       parseJSON(sizes)    || product.sizes,
+      basePrice:   basePrice           || product.basePrice,
+      inStock:     inStock !== undefined ? (String(inStock) === 'true' || inStock === true) : product.inStock,
+      stockQuantity: stockQuantity || product.stockQuantity,
+      isFeatured:    isAdmin ? (isFeatured !== undefined ? (String(isFeatured) === 'true' || isFeatured === true) : product.isFeatured) : product.isFeatured,
+      tags:          parseJSON(tags) || product.tags,
+    }
+
+    // Handle new image
     if (req.file) {
-      try {
-        const { uploadToCloudinary } = await import('../utils/cloudinaryUpload.js')
-        const uploadedUrl = await uploadToCloudinary(req.file.buffer, 'products')
-        console.log('Cloudinary Upload Success:', uploadedUrl)
-        updates.image = uploadedUrl
-      } catch (uploadError) {
-        console.error('Cloudinary Upload Error:', uploadError)
-        return res.status(500).json({ success: false, message: 'Image upload failed' })
-      }
+      const { uploadToCloudinary } = await import('../utils/cloudinaryUpload.js')
+      updates.image = await uploadToCloudinary(req.file.buffer, 'products')
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      { $set: updates }, // Use $set to be explicit
+      { $set: updates },
       { new: true, runValidators: true }
     )
 
     res.status(200).json({ success: true, product: updatedProduct })
   } catch (error) {
-    console.error('UPDATE_PRODUCT_ERROR:', error)
-    res.status(500).json({ 
-      success: false, 
-      message: error.name === 'ValidationError' 
-        ? Object.values(error.errors).map(e => e.message).join(', ') 
-        : error.message 
-    })
+    res.status(500).json({ success: false, message: error.message })
   }
 }
 
@@ -175,6 +178,15 @@ export const deleteProduct = async (req, res) => {
     const product = await Product.findById(req.params.id)
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' })
+    }
+
+    // Ownership check
+    const vendor = await Vendor.findOne({ user: req.user._id })
+    const isOwner = vendor && product.vendor?.toString() === vendor._id.toString()
+    const isAdmin = req.user.role === 'admin'
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ success: false, message: 'Not authorized to delete this product' })
     }
 
     await Product.findByIdAndDelete(req.params.id)

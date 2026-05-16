@@ -16,14 +16,19 @@ export const createVendor = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Vendor profile already exists' })
     }
 
+    // Safety parse
+    const parseJSON = (str) => {
+      try { return JSON.parse(str) } catch { return null }
+    }
+
     const vendor = await Vendor.create({
       user:         req.user._id,
       storeName,
       description,
       phone,
       email,
-      address:       address      ? JSON.parse(address)       : {},
-      deliveryAreas: deliveryAreas ? JSON.parse(deliveryAreas) : [],
+      address:       parseJSON(address)       || {},
+      deliveryAreas: parseJSON(deliveryAreas) || [],
     })
 
     // Update user role to vendor
@@ -90,13 +95,25 @@ export const updateVendorProfile = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Vendor not found' })
     }
 
-    const updates = { ...req.body }
-    if (updates.address)       updates.address       = JSON.parse(updates.address)
-    if (updates.deliveryAreas) updates.deliveryAreas = JSON.parse(updates.deliveryAreas)
+    const { storeName, description, phone, email, address, deliveryAreas } = req.body
+    
+    // Safety parse
+    const parseJSON = (str) => {
+      try { return typeof str === 'string' ? JSON.parse(str) : str } catch { return str }
+    }
+
+    const updates = {
+      storeName:   storeName   || vendor.storeName,
+      description: description || vendor.description,
+      phone:       phone       || vendor.phone,
+      email:       email       || vendor.email,
+      address:       parseJSON(address)       || vendor.address,
+      deliveryAreas: parseJSON(deliveryAreas) || vendor.deliveryAreas,
+    }
 
     const updatedVendor = await Vendor.findByIdAndUpdate(
       vendor._id,
-      updates,
+      { $set: updates },
       { new: true, runValidators: true }
     )
 
@@ -110,6 +127,10 @@ export const updateVendorProfile = async (req, res) => {
 export const updateBankDetails = async (req, res) => {
   try {
     const { accountName, accountNumber, ifscCode, bankName } = req.body
+
+    if (!accountName || !accountNumber || !ifscCode) {
+      return res.status(400).json({ success: false, message: 'Missing required bank details' })
+    }
 
     const vendor = await Vendor.findOneAndUpdate(
       { user: req.user._id },

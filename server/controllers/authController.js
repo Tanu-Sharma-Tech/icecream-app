@@ -16,7 +16,11 @@ export const register = async (req, res) => {
       return res.status(400).json({ success: false, message: 'All fields are required' })
     }
 
-    const existingUser = await User.findOne({ email })
+    if (typeof email !== 'string') {
+      return res.status(400).json({ success: false, message: 'Invalid email format' })
+    }
+
+    const existingUser = await User.findOne({ email: email.toLowerCase().trim() })
     if (existingUser) {
       return res.status(400).json({ success: false, message: 'Email already registered' })
     }
@@ -29,23 +33,19 @@ export const register = async (req, res) => {
 
     const user = await User.create({
       name,
-      email,
+      email: email.toLowerCase().trim(),
       password: hashedPassword,
       otp,
       otpExpiry,
       isVerified: false,
     })
 
-  // Send OTP email
-  console.log('====================================')
-  console.log(`⭐ OTP for ${email} is: ${otp}`)
-  console.log('====================================')
-  try {
-    await sendOTPEmail(email, otp, name)
-    console.log('OTP email sent successfully!')
-  } catch (emailError) {
-    console.error('OTP email failed:', emailError.message)
-  }
+    // Send OTP email
+    try {
+      await sendOTPEmail(email, otp, name)
+    } catch (emailError) {
+      console.error('OTP email failed:', emailError.message)
+    }
 
   res.status(201).json({
     success: true,

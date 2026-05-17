@@ -21,7 +21,7 @@ export const sendOTPEmail = async (email, otp, name) => {
       subject: 'Your OTP for Sweet Movement',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 30px; border-radius: 12px; border: 1px solid #eee; text-align: center;">
-          <img src="YOUR_LOGO_URL_HERE" alt="Sweet Movement Logo" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 3px solid #F97316;" />
+          <img src="http://localhost:5000/public/logo.png" alt="Sweet Movement Logo" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 3px solid #F97316;" />
           <h2 style="color: #F97316; margin-top: 0;">🍦 Sweet Movement</h2>
           <p style="text-align: left;">Hi <strong>${name}</strong>,</p>
           <p style="text-align: left;">Your One-Time Password (OTP) is:</p>
@@ -50,7 +50,7 @@ export const sendWelcomeEmail = async (email, name) => {
       subject: 'Welcome to Sweet Movement! 🍦',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 30px; border-radius: 12px; border: 1px solid #eee; text-align: center;">
-          <img src="YOUR_LOGO_URL_HERE" alt="Sweet Movement Logo" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 3px solid #F97316;" />
+          <img src="http://localhost:5000/public/logo.png" alt="Sweet Movement Logo" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 3px solid #F97316;" />
           <h2 style="color: #F97316; margin-top: 0;">🍦 Welcome to Sweet Movement!</h2>
           <p style="text-align: left;">Hi <strong>${name}</strong>,</p>
           <p style="text-align: left;">Your account has been verified successfully!</p>
@@ -73,7 +73,7 @@ export const sendVendorApplicationEmail = async (email, name) => {
       subject: 'Thank You for Applying to be a Vendor!',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 30px; border-radius: 12px; border: 1px solid #eee; text-align: center;">
-          <img src="YOUR_LOGO_URL_HERE" alt="Sweet Movement Logo" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 3px solid #F97316;" />
+          <img src="http://localhost:5000/public/logo.png" alt="Sweet Movement Logo" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 3px solid #F97316;" />
           <h2 style="color: #F97316; margin-top: 0;">🍦 Vendor Application Received</h2>
           <p style="text-align: left;">Hi <strong>${name}</strong>,</p>
           <p style="text-align: left;">Thank you for connecting with us! We have received your request to become a vendor.</p>
@@ -96,7 +96,7 @@ export const sendVendorVerificationCodeEmail = async (email, name, code) => {
       subject: 'Your Vendor Verification Code',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 30px; border-radius: 12px; border: 1px solid #eee; text-align: center;">
-          <img src="YOUR_LOGO_URL_HERE" alt="Sweet Movement Logo" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 3px solid #F97316;" />
+          <img src="http://localhost:5000/public/logo.png" alt="Sweet Movement Logo" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 3px solid #F97316;" />
           <h2 style="color: #F97316; margin-top: 0;">🍦 Vendor Application Approved!</h2>
           <p style="text-align: left;">Hi <strong>${name}</strong>,</p>
           <p style="text-align: left;">Congratulations! Your request to become a vendor has been approved.</p>
@@ -123,7 +123,7 @@ export const sendVendorCancellationEmail = async (email, name) => {
       subject: 'Vendor Application Cancelled',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 30px; border-radius: 12px; border: 1px solid #eee; text-align: center;">
-          <img src="YOUR_LOGO_URL_HERE" alt="Sweet Movement Logo" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 3px solid #F97316;" />
+          <img src="http://localhost:5000/public/logo.png" alt="Sweet Movement Logo" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 3px solid #F97316;" />
           <h2 style="color: #F97316; margin-top: 0;">🍦 Application Cancelled</h2>
           <p style="text-align: left;">Hi <strong>${name}</strong>,</p>
           <p style="text-align: left;">This email is to confirm that your vendor application has been successfully cancelled.</p>

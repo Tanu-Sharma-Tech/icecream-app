@@ -45,6 +45,7 @@ app.use(cors({
     'http://localhost:5173',
     'http://localhost:5174',
     'https://icecream-app-rho.vercel.app',
+    'https://sweet-movement.vercel.app',
     process.env.CLIENT_URL,
   ].filter(Boolean),
   credentials: true,

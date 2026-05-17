@@ -23,6 +23,7 @@ dotenv.config()
 connectDB()
 
 const app = express()
+app.set('trust proxy', 1) // Fix for Render rate-limiting warnings
 
 // ─── SECURITY MIDDLEWARE ──────────────────────────────────
 app.use(helmet()) // Set security headers

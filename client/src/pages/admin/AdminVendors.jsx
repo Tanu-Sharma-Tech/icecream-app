@@ -8,8 +8,6 @@ const AdminVendors = () => {
   const [vendors,  setVendors]  = useState([])
   const [loading,  setLoading]  = useState(true)
 
-  useEffect(() => { fetchVendors() }, [])
-
   const fetchVendors = async () => {
     setLoading(true)
     try {
@@ -21,6 +19,8 @@ const AdminVendors = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => { fetchVendors() }, [])
 
   const approveVendor = async (id) => {
     try {

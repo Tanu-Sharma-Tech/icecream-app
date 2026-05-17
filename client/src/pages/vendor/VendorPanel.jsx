@@ -24,12 +24,6 @@ const VendorPanel = () => {
   const [loading,   setLoading]     = useState(true)
   const [noVendor,  setNoVendor]    = useState(false)
 
-  useEffect(() => {
-    if (!user) { navigate('/login'); return }
-    if (user.role === 'admin') { navigate('/admin'); return }
-    fetchVendorData()
-  }, [user])
-
   const fetchVendorData = async () => {
     setLoading(true)
     try {
@@ -49,6 +43,12 @@ const VendorPanel = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (!user) { navigate('/login'); return }
+    if (user.role === 'admin') { navigate('/admin'); return }
+    fetchVendorData()
+  }, [user, navigate])
 
   // No vendor profile yet
   if (noVendor) {

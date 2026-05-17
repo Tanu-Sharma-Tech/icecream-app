@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLocation } from 'react-router-dom'
-import { FiChevronRight, FiHelpCircle, FiTruck, FiShield, FiFileText, FiDollarSign, FiArrowLeft, FiMessageCircle, FiX, FiSend } from 'react-icons/fi'
+import { FiChevronRight, FiHelpCircle, FiTruck, FiShield, FiFileText, FiDollarSign, FiMessageCircle, FiX } from 'react-icons/fi'
 import { useSelector } from 'react-redux'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'

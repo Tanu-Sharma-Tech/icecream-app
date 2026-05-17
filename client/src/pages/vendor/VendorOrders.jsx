@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { FiShoppingBag, FiClock, FiCheckCircle, FiTruck, FiXCircle, FiMoreVertical, FiRefreshCcw } from 'react-icons/fi'
+import { motion } from 'framer-motion'
+import { FiShoppingBag, FiTruck, FiXCircle, FiRefreshCcw } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 import axiosInstance from '../../api/axiosInstance'
 
@@ -18,8 +18,6 @@ const VendorOrders = () => {
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(null)
 
-  useEffect(() => { fetchOrders() }, [])
-
   const fetchOrders = async () => {
     setLoading(true)
     try {
@@ -31,6 +29,8 @@ const VendorOrders = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => { fetchOrders() }, [])
 
   const updateStatus = async (orderId, status) => {
     setUpdating(orderId)

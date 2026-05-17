@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { FiDollarSign, FiUser, FiCreditCard, FiCheckCircle, FiClock, FiActivity, FiArrowUpRight } from 'react-icons/fi'
+import { FiDollarSign, FiCreditCard, FiCheckCircle, FiClock, FiActivity, FiArrowUpRight } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 import axiosInstance from '../../api/axiosInstance'
 
@@ -9,8 +9,6 @@ const AdminPayments = () => {
   const [loading,  setLoading]  = useState(true)
   const [revenue,  setRevenue]  = useState(0)
   const [filter,   setFilter]   = useState('')
-
-  useEffect(() => { fetchPayments() }, [filter])
 
   const fetchPayments = async () => {
     setLoading(true)
@@ -25,6 +23,8 @@ const AdminPayments = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => { fetchPayments() }, [filter])
 
   const confirmCOD = async (orderId) => {
     try {

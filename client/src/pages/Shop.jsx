@@ -6,7 +6,6 @@ import ScoopBuilder from '../components/ScoopBuilder'
 import axiosInstance from '../api/axiosInstance'
 import toast from 'react-hot-toast'
 import Footer from '../components/Footer'
-import SimpleLoader from '../components/SimpleLoader'
 
 const categories = ['all', 'icecream', 'sundae', 'milkshake', 'popsicle', 'waffle']
 
@@ -16,10 +15,6 @@ const Shop = () => {
   const [category,  setCategory]  = useState('all')
   const [showBuilder, setShowBuilder] = useState(false)
   const [search,    setSearch]    = useState('')
-
-  useEffect(() => {
-    fetchProducts()
-  }, [category])
 
   const fetchProducts = async () => {
     setLoading(true)
@@ -33,6 +28,10 @@ const Shop = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    fetchProducts()
+  }, [category])
 
   const filtered = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) && p.inStock

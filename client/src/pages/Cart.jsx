@@ -13,7 +13,6 @@ const Cart = () => {
   const { user }               = useSelector(state => state.auth)
   const { isLoading }          = useSelector(state => state.orders)
   const dispatch               = useDispatch()
-  const navigate               = useNavigate()
 
   const [step, setStep]       = useState(1) // 1=cart, 2=address, 3=success
   const [address, setAddress] = useState({

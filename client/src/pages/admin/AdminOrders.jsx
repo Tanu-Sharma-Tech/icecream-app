@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { FiShoppingBag, FiUser, FiClock, FiCheckCircle, FiTruck, FiXCircle, FiMoreVertical } from 'react-icons/fi'
+import { FiShoppingBag, FiClock, FiCheckCircle } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 import axiosInstance from '../../api/axiosInstance'
 
@@ -19,8 +19,6 @@ const AdminOrders = () => {
   const [filter,  setFilter]  = useState('')
   const [updating, setUpdating] = useState(null)
 
-  useEffect(() => { fetchOrders() }, [filter])
-
   const fetchOrders = async () => {
     setLoading(true)
     try {
@@ -33,6 +31,8 @@ const AdminOrders = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => { fetchOrders() }, [filter])
 
   const updateStatus = async (orderId, status) => {
     setUpdating(orderId)

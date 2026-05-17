@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { FiSearch, FiTrash2, FiUser, FiMail, FiCalendar, FiShield, FiCheckCircle, FiX } from 'react-icons/fi'
+import { FiSearch, FiTrash2, FiUser, FiMail, FiCalendar, FiShield, FiCheckCircle, FiX, FiUsers } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 import axiosInstance from '../../api/axiosInstance'
 
@@ -32,8 +32,6 @@ const AdminUsers = () => {
     }
   }
 
-  useEffect(() => { fetchUsers() }, [])
-
   const fetchUsers = async () => {
     setLoading(true)
     try {
@@ -45,6 +43,8 @@ const AdminUsers = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => { fetchUsers() }, [])
 
   const updateRole = async (userId, role) => {
     try {

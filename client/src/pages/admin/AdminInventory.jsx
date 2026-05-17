@@ -10,8 +10,6 @@ const AdminInventory = () => {
   const [editing,  setEditing]  = useState(null)
   const [form,     setForm]     = useState({ stockQuantity: 0, inStock: true })
 
-  useEffect(() => { fetchInventory() }, [])
-
   const fetchInventory = async () => {
     setLoading(true)
     try {
@@ -23,6 +21,8 @@ const AdminInventory = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => { fetchInventory() }, [])
 
   const handleEdit = (product) => {
     setEditing(product._id)

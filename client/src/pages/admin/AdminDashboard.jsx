@@ -65,14 +65,6 @@ const AdminDashboard = () => {
   const [loading, setLoading]     = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
-  useEffect(() => {
-    if (!user || user.role !== 'admin') {
-      navigate('/')
-      return
-    }
-    fetchDashboard()
-  }, [user])
-
   const fetchDashboard = async () => {
     try {
       const res = await axiosInstance.get('/admin/dashboard')
@@ -85,6 +77,14 @@ const AdminDashboard = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (!user || user.role !== 'admin') {
+      navigate('/')
+      return
+    }
+    fetchDashboard()
+  }, [user, navigate])
 
   const statusColor = {
     placed:           'bg-blue-50   text-blue-600 border border-blue-100',

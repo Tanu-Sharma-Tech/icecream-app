@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { FiArrowLeft, FiShoppingBag, FiStar, FiClock, FiTruck, FiShield, FiSend } from 'react-icons/fi'
+import { FiArrowLeft, FiStar, FiClock, FiTruck, FiShield, FiSend } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
 import { addToCart } from '../features/cart/cartSlice'
 import axiosInstance from '../api/axiosInstance'
@@ -35,7 +35,7 @@ const ProductDetail = () => {
         // Fetch related products
         const relatedRes = await axiosInstance.get(`/products/category/${res.data.product.category}`)
         setRelated(relatedRes.data.products.filter(p => p._id !== id).slice(0, 4))
-      } catch (error) {
+      } catch {
         toast.error('Failed to load product')
       } finally {
         setLoading(false)
@@ -68,7 +68,7 @@ const ProductDetail = () => {
       setProduct(res.data.product)
       setComment('')
       toast.success('Review added!')
-    } catch (error) {
+    } catch {
       toast.error('Failed to add review')
     } finally {
       setSubmitting(false)

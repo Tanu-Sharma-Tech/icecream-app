@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiPlus, FiX, FiCamera, FiEdit2, FiTrash2, FiBox, FiDollarSign, FiTag, FiCheckCircle, FiAlertCircle } from 'react-icons/fi'
+import { FiPlus, FiX, FiCamera, FiEdit2, FiBox, FiCheckCircle, FiAlertCircle } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 import axiosInstance from '../../api/axiosInstance'
 
@@ -37,7 +37,6 @@ const VendorProducts = ({ products, onRefresh }) => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]
-    console.log('File Selected:', file)
     if (file) {
       setImageFile(file)
       setPreview(URL.createObjectURL(file))

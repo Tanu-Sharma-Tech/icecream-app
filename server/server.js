@@ -16,7 +16,6 @@ import './models/Order.js'
 import './models/Vendor.js'
 
 import helmet from 'helmet'
-import xss    from 'xss-clean'
 import hpp    from 'hpp'
 import rateLimit from 'express-rate-limit'
 
@@ -27,13 +26,12 @@ const app = express()
 
 // ─── SECURITY MIDDLEWARE ──────────────────────────────────
 app.use(helmet()) // Set security headers
-app.use(xss())    // Prevent XSS
 app.use(hpp())    // Prevent HTTP Parameter Pollution
 
 // Rate Limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max:      100,            // Limit each IP to 100 requests per windowMs
+  max:      10000,            // Limit each IP to 10000 requests per windowMs
   message:  'Too many requests from this IP, please try again after 15 minutes',
   standardHeaders: true,
   legacyHeaders:   false,

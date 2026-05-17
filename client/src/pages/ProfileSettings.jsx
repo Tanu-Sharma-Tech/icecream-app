@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { FiUser, FiMail, FiPhone, FiSave, FiArrowLeft, FiCamera, FiMapPin } from 'react-icons/fi'
+import { FiUser, FiMail, FiPhone, FiSave, FiArrowLeft, FiCamera, FiMapPin, FiAlertTriangle, FiX } from 'react-icons/fi'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
@@ -26,6 +26,21 @@ const ProfileSettings = () => {
   const [imageFile, setImageFile] = useState(null)
   const [preview,   setPreview]   = useState(user?.profileImage || '')
   const [loading,   setLoading]   = useState(false)
+  const [showCancelModal, setShowCancelModal] = useState(false)
+
+  const handleCancelApplication = async () => {
+    try {
+      setLoading(true)
+      const res = await axiosInstance.post('/vendors/cancel')
+      toast.success(res.data.message)
+      dispatch(getMe())
+      setShowCancelModal(false)
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Cancellation failed')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (user) {
@@ -287,9 +302,145 @@ const ProfileSettings = () => {
               </p>
             </div>
           </div>
+
+          {/* Vendor Application Section */}
+          {user?.role === 'user' && (
+            <div className="mt-6 bg-white rounded-[2rem] shadow-soft border border-gray-50 overflow-hidden p-8">
+              <h3 className="text-lg font-black text-dark mb-2">Vendor Application</h3>
+              
+              {(!user.vendorStatus || user.vendorStatus === 'none') && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Interested in selling your ice cream on our platform? Apply to become a vendor today!
+                  </p>
+                  <button
+                    onClick={async () => {
+                      try {
+                        setLoading(true)
+                        const res = await axiosInstance.post('/vendors/apply')
+                        toast.success(res.data.message)
+                        dispatch(getMe())
+                      } catch (error) {
+                        toast.error(error.response?.data?.message || 'Application failed')
+                      } finally {
+                        setLoading(false)
+                      }
+                    }}
+                    disabled={loading}
+                    className="px-6 py-3 bg-primary text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-orange-600 transition-all shadow-hard disabled:opacity-50"
+                  >
+                    Apply Now
+                  </button>
+                </div>
+              )}
+
+              {user.vendorStatus === 'pending' && (
+                <div className="p-4 bg-blue-50 text-blue-800 rounded-2xl border border-blue-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div>
+                    <h4 className="font-bold mb-1">Application Pending</h4>
+                    <p className="text-sm">We've received your vendor application! Our team is reviewing it. You will receive an email once approved.</p>
+                  </div>
+                  <button
+                    onClick={() => setShowCancelModal(true)}
+                    disabled={loading}
+                    className="px-4 py-2 bg-white text-red-600 border border-red-200 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-50 hover:border-red-300 transition-all shadow-sm disabled:opacity-50 whitespace-nowrap"
+                  >
+                    Cancel Application
+                  </button>
+                </div>
+              )}
+
+              {user.vendorStatus === 'approved' && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-4 font-bold text-emerald-600">
+                    Congratulations! Your application is approved. Please enter the verification code sent to your email.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <input
+                      type="text"
+                      id="vendorCodeInput"
+                      placeholder="Enter 6-digit code"
+                      className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold text-dark focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all w-full max-w-[200px]"
+                    />
+                    <button
+                      onClick={async () => {
+                        const code = document.getElementById('vendorCodeInput').value
+                        if (!code) return toast.error('Please enter the code')
+                        try {
+                          setLoading(true)
+                          const res = await axiosInstance.post('/vendors/verify-code', { code })
+                          toast.success(res.data.message)
+                          dispatch(getMe())
+                        } catch (error) {
+                          toast.error(error.response?.data?.message || 'Verification failed')
+                        } finally {
+                          setLoading(false)
+                        }
+                      }}
+                      disabled={loading}
+                      className="px-6 py-3 bg-dark text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-hard disabled:opacity-50"
+                    >
+                      Verify Code
+                    </button>
+                    <button
+                      onClick={() => setShowCancelModal(true)}
+                      disabled={loading}
+                      className="px-6 py-3 bg-white text-red-600 border border-red-200 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-50 hover:border-red-300 transition-all shadow-sm disabled:opacity-50"
+                    >
+                      Cancel Application
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </motion.div>
       </main>
       <Footer />
+
+      {/* Custom Cancel Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-[2rem] p-8 max-w-sm w-full relative shadow-2xl text-center"
+          >
+            <button 
+              onClick={() => setShowCancelModal(false)}
+              className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <FiX size={24} />
+            </button>
+            
+            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FiAlertTriangle className="text-[#ef4444]" size={36} />
+            </div>
+
+            <h3 className="text-2xl font-black text-dark mb-3 italic">Cancel Application?</h3>
+            <p className="text-gray-500 text-sm font-medium mb-8">
+              Are you sure you want to cancel your vendor application? This action cannot be undone.
+            </p>
+
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleCancelApplication}
+                disabled={loading}
+                className="w-full py-4 bg-[#ef4444] text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-[#dc2626] transition-all shadow-lg shadow-red-500/30 disabled:opacity-50"
+              >
+                {loading ? 'Canceling...' : 'Yes, Cancel Application'}
+              </button>
+              <button
+                onClick={() => setShowCancelModal(false)}
+                disabled={loading}
+                className="w-full py-4 bg-gray-50 text-gray-600 rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-gray-100 transition-all disabled:opacity-50"
+              >
+                No, Keep It
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   )
 }

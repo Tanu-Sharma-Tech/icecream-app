@@ -218,3 +218,89 @@ export const getVendorProducts = async (req, res) => {
     res.status(500).json({ success: false, message: error.message })
   }
 }
+
+// ─── APPLY FOR VENDOR ─────────────────────────────────────
+export const applyForVendor = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id)
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' })
+    }
+
+    if (user.role === 'vendor') {
+      return res.status(400).json({ success: false, message: 'You are already a vendor' })
+    }
+
+    if (user.vendorStatus === 'pending') {
+      return res.status(400).json({ success: false, message: 'Your application is already pending' })
+    }
+
+    user.vendorStatus = 'pending'
+    await user.save({ validateBeforeSave: false })
+
+    const { sendVendorApplicationEmail } = await import('../utils/sendEmail.js')
+    await sendVendorApplicationEmail(user.email, user.name)
+
+    res.status(200).json({ success: true, message: 'Application submitted successfully. We have sent you an email.' })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}
+
+// ─── VERIFY VENDOR CODE ───────────────────────────────────
+export const verifyVendorCode = async (req, res) => {
+  try {
+    const { code } = req.body
+    if (!code) {
+      return res.status(400).json({ success: false, message: 'Verification code is required' })
+    }
+
+    const user = await User.findById(req.user._id)
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' })
+    }
+
+    if (user.vendorStatus !== 'approved' || !user.vendorCode) {
+      return res.status(400).json({ success: false, message: 'No approved application or code found' })
+    }
+
+    if (user.vendorCode !== code) {
+      return res.status(400).json({ success: false, message: 'Invalid verification code' })
+    }
+
+    // Success: make them a vendor
+    user.role = 'vendor'
+    user.vendorStatus = 'none'
+    user.vendorCode = null
+    await user.save({ validateBeforeSave: false })
+
+    res.status(200).json({ success: true, message: 'Congratulations! You are now a vendor.', role: user.role })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}
+
+// ─── CANCEL VENDOR APPLICATION ────────────────────────────
+export const cancelVendorApplication = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id)
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' })
+    }
+
+    if (user.vendorStatus !== 'pending' && user.vendorStatus !== 'approved') {
+      return res.status(400).json({ success: false, message: 'No active application to cancel' })
+    }
+
+    user.vendorStatus = 'none'
+    user.vendorCode = null
+    await user.save({ validateBeforeSave: false })
+
+    const { sendVendorCancellationEmail } = await import('../utils/sendEmail.js')
+    await sendVendorCancellationEmail(user.email, user.name)
+
+    res.status(200).json({ success: true, message: 'Vendor application cancelled successfully' })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}

@@ -12,6 +12,7 @@ import {
   updateInventory,
   getPaymentRecords,
   getRevenueAnalytics,
+  sendVendorVerificationCode,
 } from '../controllers/adminController.js'
 import { protect }   from '../middleware/authMiddleware.js'
 import { adminOnly } from '../middleware/roleGuard.js'
@@ -30,6 +31,7 @@ router.get('/revenue',             getRevenueAnalytics)
 router.get('/users',               getAllUsers)
 router.get('/users/:id',           getUserById)
 router.put('/users/:id/role',      updateUserRole)
+router.post('/users/:id/send-vendor-code', sendVendorVerificationCode)
 router.delete('/users/:id',        deleteUser)
 
 // Vendor management

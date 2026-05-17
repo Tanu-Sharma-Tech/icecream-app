@@ -400,3 +400,27 @@ export const getRevenueAnalytics = async (req, res) => {
     res.status(500).json({ success: false, message: error.message })
   }
 }
+
+// ─── SEND VENDOR VERIFICATION CODE ────────────────────────
+export const sendVendorVerificationCode = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' })
+
+    if (user.vendorStatus !== 'pending') {
+      return res.status(400).json({ success: false, message: 'User has not applied or already approved' })
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString()
+    user.vendorCode = code
+    user.vendorStatus = 'approved'
+    await user.save({ validateBeforeSave: false })
+
+    const { sendVendorVerificationCodeEmail } = await import('../utils/sendEmail.js')
+    await sendVendorVerificationCodeEmail(user.email, user.name, code)
+
+    res.status(200).json({ success: true, message: 'Verification code sent to user successfully' })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}

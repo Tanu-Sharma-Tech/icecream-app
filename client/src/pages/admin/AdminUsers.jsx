@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { FiSearch, FiTrash2, FiUser, FiMail, FiCalendar, FiShield, FiCheckCircle } from 'react-icons/fi'
+import { FiSearch, FiTrash2, FiUser, FiMail, FiCalendar, FiShield, FiCheckCircle, FiX } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 import axiosInstance from '../../api/axiosInstance'
 
@@ -14,6 +14,23 @@ const AdminUsers = () => {
   const [users,   setUsers]   = useState([])
   const [loading, setLoading] = useState(true)
   const [search,  setSearch]  = useState('')
+  const [approveModalUser, setApproveModalUser] = useState(null)
+  const [deleteModalUser,  setDeleteModalUser]  = useState(null)
+
+  const handleApproveVendor = async () => {
+    if (!approveModalUser) return
+    try {
+      setLoading(true)
+      await axiosInstance.post(`/admin/users/${approveModalUser}/send-vendor-code`)
+      toast.success('Verification code sent!')
+      fetchUsers()
+      setApproveModalUser(null)
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to send code')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => { fetchUsers() }, [])
 
@@ -39,12 +56,13 @@ const AdminUsers = () => {
     }
   }
 
-  const deleteUser = async (userId) => {
-    if (!window.confirm('Delete this user?')) return
+  const handleDeleteUser = async () => {
+    if (!deleteModalUser) return
     try {
-      await axiosInstance.delete(`/admin/users/${userId}`)
+      await axiosInstance.delete(`/admin/users/${deleteModalUser}`)
       toast.success('User deleted')
       fetchUsers()
+      setDeleteModalUser(null)
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to delete')
     }
@@ -142,13 +160,23 @@ const AdminUsers = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button
-                        onClick={() => deleteUser(user._id)}
-                        className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all active:scale-90"
-                        title="Delete User"
-                      >
-                        <FiTrash2 size={16} />
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        {user.vendorStatus === 'pending' && (
+                          <button
+                            onClick={() => setApproveModalUser(user._id)}
+                            className="px-3 py-1.5 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-orange-600 transition-all shadow-soft"
+                          >
+                            Approve Vendor
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setDeleteModalUser(user._id)}
+                          className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all active:scale-90"
+                          title="Delete User"
+                        >
+                          <FiTrash2 size={16} />
+                        </button>
+                      </div>
                     </td>
                   </motion.tr>
                 ))}
@@ -164,6 +192,94 @@ const AdminUsers = () => {
               <p className="text-gray-400 text-xs mt-1">Try searching for something else</p>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Approve Vendor Modal */}
+      {approveModalUser && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-[2rem] p-8 max-w-sm w-full relative shadow-2xl text-center"
+          >
+            <button 
+              onClick={() => setApproveModalUser(null)}
+              className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <FiX size={24} />
+            </button>
+            
+            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FiCheckCircle className="text-emerald-500" size={36} />
+            </div>
+
+            <h3 className="text-2xl font-black text-dark mb-3 italic">Approve Vendor?</h3>
+            <p className="text-gray-500 text-sm font-medium mb-8">
+              Are you sure you want to approve this vendor application and send the verification code?
+            </p>
+
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleApproveVendor}
+                disabled={loading}
+                className="w-full py-4 bg-emerald-500 text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/30 disabled:opacity-50"
+              >
+                {loading ? 'Approving...' : 'Yes, Approve Vendor'}
+              </button>
+              <button
+                onClick={() => setApproveModalUser(null)}
+                disabled={loading}
+                className="w-full py-4 bg-gray-50 text-gray-600 rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-gray-100 transition-all disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Delete User Modal */}
+      {deleteModalUser && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-[2rem] p-8 max-w-sm w-full relative shadow-2xl text-center"
+          >
+            <button 
+              onClick={() => setDeleteModalUser(null)}
+              className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <FiX size={24} />
+            </button>
+            
+            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FiTrash2 className="text-red-500" size={36} />
+            </div>
+
+            <h3 className="text-2xl font-black text-dark mb-3 italic">Delete User?</h3>
+            <p className="text-gray-500 text-sm font-medium mb-8">
+              Are you sure you want to delete this user? This action cannot be undone.
+            </p>
+
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleDeleteUser}
+                disabled={loading}
+                className="w-full py-4 bg-red-500 text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-red-600 transition-all shadow-lg shadow-red-500/30 disabled:opacity-50"
+              >
+                Yes, Delete User
+              </button>
+              <button
+                onClick={() => setDeleteModalUser(null)}
+                disabled={loading}
+                className="w-full py-4 bg-gray-50 text-gray-600 rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-gray-100 transition-all disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
         </div>
       )}
     </div>

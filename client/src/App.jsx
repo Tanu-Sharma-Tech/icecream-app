@@ -51,11 +51,29 @@ function App() {
             <Toaster
               position="top-right"
               toastOptions={{
-                duration: 3000,
+                duration: 4000,
                 style: {
-                  background: '#1F2937',
-                  color:      '#fff',
-                  borderRadius: '12px',
+                  background: '#ffffff',
+                  color: '#111827',
+                  borderRadius: '2rem',
+                  padding: '16px 24px',
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)',
+                  fontWeight: '800',
+                  border: '1px solid #f9fafb',
+                  fontSize: '14px',
+                  letterSpacing: '0.05em',
+                },
+                success: {
+                  iconTheme: {
+                    primary: '#10b981',
+                    secondary: '#ffffff',
+                  },
+                },
+                error: {
+                  iconTheme: {
+                    primary: '#ef4444',
+                    secondary: '#ffffff',
+                  },
                 },
               }}
             />

@@ -57,11 +57,20 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    vendorStatus: {
+      type: String,
+      enum: ['none', 'pending', 'approved', 'rejected'],
+      default: 'none',
+    },
+    vendorCode: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 )
 
-userSchema.index({ email: 1 })
+
 userSchema.index({ role: 1 })
 userSchema.index({ createdAt: -1 })
 

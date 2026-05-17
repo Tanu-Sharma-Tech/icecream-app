@@ -21,7 +21,7 @@ export const sendOTPEmail = async (email, otp, name) => {
       subject: 'Your OTP for Sweet Movement',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 30px; border-radius: 12px; border: 1px solid #eee; text-align: center;">
-          <h2 style="color: #F97316; margin-top: 0;">Sweet Movement</h2>
+          <h2 style="color: #F97316; margin-top: 0;">Sweet Movement 🍦</h2>
           <p style="text-align: left;">Hi <strong>${name}</strong>,</p>
           <p style="text-align: left;">Your One-Time Password (OTP) is:</p>
           <div style="background: #FFF3E8; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
@@ -49,7 +49,7 @@ export const sendWelcomeEmail = async (email, name) => {
       subject: 'Welcome to Sweet Movement!',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 30px; border-radius: 12px; border: 1px solid #eee; text-align: center;">
-          <h2 style="color: #F97316; margin-top: 0;">Welcome to Sweet Movement!</h2>
+          <h2 style="color: #F97316; margin-top: 0;">Welcome to Sweet Movement 🍦!</h2>
           <p style="text-align: left;">Hi <strong>${name}</strong>,</p>
           <p style="text-align: left;">Your account has been verified successfully!</p>
           <p style="text-align: left;">You can now browse our delicious ice cream flavors and place orders.</p>

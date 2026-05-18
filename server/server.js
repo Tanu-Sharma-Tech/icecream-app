@@ -14,6 +14,7 @@ import './models/User.js'
 import './models/Product.js'
 import './models/Order.js'
 import './models/Vendor.js'
+import passport from './config/passport.js'
 
 import helmet from 'helmet'
 import hpp    from 'hpp'
@@ -53,6 +54,7 @@ app.use(cors({
 }))
 app.use(express.json({ limit: '10kb' })) // Limit body size to prevent DoS
 app.use(cookieParser())
+app.use(passport.initialize())
 
 app.use('/api/auth', authRoutes)
 app.use('/api/products', productRoutes)

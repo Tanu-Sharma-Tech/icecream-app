@@ -216,13 +216,13 @@ export const refreshToken = async (req, res) => {
 }
 
 // ─── GOOGLE OAUTH CALLBACK ────────────────────────────────
-// export const googleCallback = async (req, res) => {
-//   try {
-//     await sendTokens(req.user, res, 200)
-//   } catch (error) {
-//     res.redirect(`${process.env.CLIENT_URL}/login?error=google_auth_failed`)
-//   }
-// }
+export const googleCallback = async (req, res) => {
+  try {
+    await sendTokens(req.user, res, 200)
+  } catch (error) {
+    res.redirect(`${process.env.CLIENT_URL}/login?error=google_auth_failed`)
+  }
+}
 
 // ─── FORGOT PASSWORD (send OTP) ───────────────────────────
 export const forgotPassword = async (req, res) => {

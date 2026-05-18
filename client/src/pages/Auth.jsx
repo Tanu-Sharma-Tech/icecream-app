@@ -254,7 +254,7 @@ const Auth = () => {
             </div>
 
             <a
-              href="http://localhost:5000/api/auth/google"
+              href="https://sweet-movement-api.onrender.com/api/auth/google"
               className="flex items-center justify-center gap-3 w-full bg-white border border-gray-100 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-50 transition-all shadow-sm text-sm"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">

@@ -14,6 +14,8 @@ import {
 import { protect } from '../middleware/authMiddleware.js'
 import upload from '../middleware/uploadMiddleware.js'
 
+import passport from 'passport'
+
 const router = express.Router()
 
 // Email + Password Auth
@@ -27,5 +29,13 @@ router.put('/update-profile',   protect, upload.single('image'), updateProfile)
 router.post('/refresh-token',   refreshToken)
 router.post('/forgot-password', forgotPassword)
 router.post('/reset-password',  resetPassword)
+
+// Google OAuth
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }))
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: `${process.env.CLIENT_URL}/login?error=google_auth_failed` }),
+  googleCallback
+)
 
 export default router

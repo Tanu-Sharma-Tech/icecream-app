@@ -235,9 +235,11 @@ export const googleCallback = async (req, res) => {
     })
 
     // Redirect to frontend with the access token
-    res.redirect(`${process.env.CLIENT_URL}/?token=${accessToken}`)
+    const clientUrl = process.env.NODE_ENV === 'production' ? process.env.CLIENT_URL : 'http://localhost:5173'
+    res.redirect(`${clientUrl}/?token=${accessToken}`)
   } catch (error) {
-    res.redirect(`${process.env.CLIENT_URL}/login?error=google_auth_failed`)
+    const clientUrl = process.env.NODE_ENV === 'production' ? process.env.CLIENT_URL : 'http://localhost:5173'
+    res.redirect(`${clientUrl}/login?error=google_auth_failed`)
   }
 }
 

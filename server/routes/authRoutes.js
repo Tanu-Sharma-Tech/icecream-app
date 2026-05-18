@@ -10,6 +10,7 @@ import {
   forgotPassword,
   resetPassword,
   updateProfile,
+  googleCallback,
 } from '../controllers/authController.js'
 import { protect } from '../middleware/authMiddleware.js'
 import upload from '../middleware/uploadMiddleware.js'

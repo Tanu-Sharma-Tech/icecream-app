@@ -51,6 +51,7 @@ export const register = async (req, res) => {
     success: true,
     message: 'OTP sent to your email. Please verify to complete registration.',
     userId: user._id,
+    devOtp: otp, // Added for testing purposes so you can login even if emails fail
   })
   } catch (error) {
     console.error('Register error:', error)

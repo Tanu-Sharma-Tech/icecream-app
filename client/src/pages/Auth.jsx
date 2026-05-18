@@ -63,6 +63,9 @@ const Auth = () => {
         })).then(res => {
           if (res.meta.requestStatus === 'fulfilled') {
             toast.success('OTP sent to your email!')
+            if (res.payload?.devOtp) {
+              toast.success(`TESTING OTP: ${res.payload.devOtp}`, { duration: 10000, icon: '🔧' })
+            }
             setStep(2)
           }
         })

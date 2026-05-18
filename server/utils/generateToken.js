@@ -25,7 +25,7 @@ export const sendTokens = async (user, res, statusCode = 200) => {
   await User.findByIdAndUpdate(
     user._id,
     { refreshToken },
-    { new: true }
+    { returnDocument: 'after' }
   )
 
   // Set refresh token in HTTP-only cookie

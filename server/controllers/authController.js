@@ -224,7 +224,7 @@ export const googleCallback = async (req, res) => {
     const refreshToken = generateRefreshToken(req.user._id)
 
     // Save refresh token to DB
-    await User.findByIdAndUpdate(req.user._id, { refreshToken }, { new: true })
+    await User.findByIdAndUpdate(req.user._id, { refreshToken }, { returnDocument: 'after' })
 
     // Set refresh token in HTTP-only cookie
     res.cookie('refreshToken', refreshToken, {
@@ -336,7 +336,7 @@ export const updateProfile = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user._id,
       updateData,
-      { new: true, runValidators: true }
+      { returnDocument: 'after', runValidators: true }
     ).select('-password -refreshToken')
 
     if (!user) {

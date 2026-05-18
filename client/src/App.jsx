@@ -28,8 +28,20 @@ function App() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken')
-    if (token) dispatch(getMe())
+    // Check if there is a token in the URL (from Google OAuth)
+    const params = new URLSearchParams(window.location.search)
+    const urlToken = params.get('token')
+    
+    if (urlToken) {
+      // Save token and remove it from URL bar to keep it clean
+      localStorage.setItem('accessToken', urlToken)
+      window.history.replaceState({}, document.title, window.location.pathname)
+      dispatch(getMe())
+    } else {
+      // Normal flow
+      const token = localStorage.getItem('accessToken')
+      if (token) dispatch(getMe())
+    }
   }, [dispatch])
 
   const handleIntroComplete = () => {

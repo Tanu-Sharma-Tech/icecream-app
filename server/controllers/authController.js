@@ -218,7 +218,24 @@ export const refreshToken = async (req, res) => {
 // ─── GOOGLE OAUTH CALLBACK ────────────────────────────────
 export const googleCallback = async (req, res) => {
   try {
-    await sendTokens(req.user, res, 200)
+    // Dynamically import token generators to avoid circular dependencies if any
+    const { generateAccessToken, generateRefreshToken } = await import('../utils/generateToken.js')
+    const accessToken  = generateAccessToken(req.user._id, req.user.role)
+    const refreshToken = generateRefreshToken(req.user._id)
+
+    // Save refresh token to DB
+    await User.findByIdAndUpdate(req.user._id, { refreshToken }, { new: true })
+
+    // Set refresh token in HTTP-only cookie
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    })
+
+    // Redirect to frontend with the access token
+    res.redirect(`${process.env.CLIENT_URL}/?token=${accessToken}`)
   } catch (error) {
     res.redirect(`${process.env.CLIENT_URL}/login?error=google_auth_failed`)
   }
